@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#b51f2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Einsatzprotokoll">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0iI2I1MWYyZSIvPgo8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyMjYiIHI9IjE1MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utb3BhY2l0eT0iLjIyIiBzdHJva2Utd2lkdGg9IjE0Ii8+Cjx0ZXh0IHg9IjI1NiIgeT0iMjc2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iRGVqYVZ1IFNhbnMiIGZvbnQtd2VpZ2h0PSJib2xkIiBmb250LXNpemU9IjE3MCIgZmlsbD0iI2ZmZmZmZiI+RVA8L3RleHQ+Cjx0ZXh0IHg9IjI1NiIgeT0iNDQwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iRGVqYVZ1IFNhbnMiIGZvbnQtd2VpZ2h0PSJib2xkIiBmb250LXNpemU9IjU0IiBsZXR0ZXItc3BhY2luZz0iNCIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIuOSI+RUlOU0FUWjwvdGV4dD48L3N2Zz4=">
 <title>Einsatzprotokoll Personensuche – Rettungshundestaffel · Offline</title>
 <style>
   :root{
@@ -405,7 +410,7 @@ function buildRhsExchangePackage(){
   const x=ensureRhsExchange(); if(!x.team.teamId) x.team.teamId=rhsUid('team');
   return {rhsFormat:RHS_EXCHANGE_FORMAT,schemaVersion:RHS_EXCHANGE_SCHEMA,packageType:'team',packageId:rhsUid('pkg'),createdAt:new Date().toISOString(),source:{app:RHS_APP_ID,appVersion:APP_VERSION,instanceId:x.instanceId},records:[{type:'team',id:x.team.teamId,data:JSON.parse(JSON.stringify(x.team)),fieldMeta:JSON.parse(JSON.stringify(x.fieldMeta))}]};
 }
-function rhsDownload(){ const p=buildRhsExchangePackage(), blob=new Blob([JSON.stringify(p,null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='RHS_v2_Exchange_Einsatzprotokoll_'+todayISO()+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);planeSpeichern(); }
+function rhsDownload(){ const p=buildRhsExchangePackage(), blob=new Blob([JSON.stringify(p,null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='RHS_Teamdaten_Einsatzprotokoll_'+todayISO()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);planeSpeichern(); }
 function rhsNormalizePackage(raw){if(!raw||raw.rhsFormat!==RHS_EXCHANGE_FORMAT)throw new Error('Keine RHS-Exchange-Datei.');if(Number(raw.schemaVersion)>RHS_EXCHANGE_SCHEMA)throw new Error('Neuere RHS-Exchange-Version noch nicht unterstützt.');if(Array.isArray(raw.records))return raw;const x=raw.payload?.team;if(!x)throw new Error('Keine Team-Stammdaten enthalten.');const f=x.fields||{},v=(...ks)=>{for(const k of ks)if(f[k]&&f[k].value!==undefined)return f[k].value;return''},mm=(...ks)=>{for(const k of ks)if(f[k])return{revision:Number(f[k].revision||0),updatedAt:f[k].updatedAt||'',sourceApp:raw.sourceApp||''};return{revision:0}};return{rhsFormat:RHS_EXCHANGE_FORMAT,schemaVersion:2,packageId:raw.packageId||'',createdAt:raw.createdAt||'',source:{app:raw.sourceApp||'legacy-v1'},records:[{type:'team',id:x.teamId,data:{handler:v('handler'),dogName:v('dogName','dog'),dogBirthDate:v('dogBirthDate','geburtsdatum'),dogBreed:v('dogBreed','rasseFrei'),unit:v('unit'),disciplines:(()=>{const q=v('disciplines','sparte');return Array.isArray(q)?q:(q?[q]:[])})(),indicationType:v('indicationType','anzeigeart')},fieldMeta:{handler:mm('handler'),dogName:mm('dogName','dog'),dogBirthDate:mm('dogBirthDate','geburtsdatum'),dogBreed:mm('dogBreed','rasseFrei'),unit:mm('unit'),disciplines:mm('disciplines','sparte'),indicationType:mm('indicationType','anzeigeart')}}]};}
 function rhsImportFile(file){
  const rd=new FileReader(); rd.onload=async()=>{try{const p=rhsNormalizePackage(JSON.parse(rd.result)); const x=ensureRhsExchange(); if(p.packageId&&x.processedPackages.includes(p.packageId)){alert('Dieses Austauschpaket wurde bereits verarbeitet.');return;} const rec=(p.records||[]).find(r=>r.type==='team'); if(!rec||!rec.data) throw new Error('Keine Team-Stammdaten enthalten.'); if(x.team.teamId&&rec.id&&x.team.teamId!==rec.id&&!confirm('Andere Team-ID. Gehören beide Profile zum selben realen Team und sollen feldweise zusammengeführt werden?')) return; if(rec.id)x.team.teamId=rec.id; else if(!x.team.teamId)x.team.teamId=rhsUid('team'); let neu=0,akt=0,konfl=0,alt=0; const fields=['handler','dogName','dogBirthDate','dogBreed','unit','disciplines','indicationType']; for(const f of fields){const iv=rec.data[f], im=(rec.fieldMeta||{})[f]||{revision:0}, lm=rhsMetaFor(f), lv=x.team[f], ir=Number(im.revision||0), lr=Number(lm.revision||0); if(JSON.stringify(iv)===JSON.stringify(lv)){alt++;continue;} if(!lv||(Array.isArray(lv)&&!lv.length)){rhsSetField(f,iv,p.source?.app,p.source?.instanceId,im);neu++;continue;} if(ir>lr){rhsSetField(f,iv,p.source?.app,p.source?.instanceId,im);akt++;continue;} if(ir<lr){alt++;continue;} konfl++; if(confirm(`Konflikt bei „${f}“:\n\nAktuell: ${Array.isArray(lv)?lv.join(', '):lv}\nImport: ${Array.isArray(iv)?iv.join(', '):iv}\n\nImportwert übernehmen?`)){rhsSetField(f,iv,p.source?.app,p.source?.instanceId,{...im,revision:lr+1});akt++;}}
@@ -1237,7 +1242,7 @@ function tplMehr(){
       <button class="action" data-action="drucken" type="button">🖨️ Druckansicht / als PDF sichern</button>
       <button class="action" data-action="export-json" type="button">⬇️ Vollständige Sicherung inkl. Bilder (JSON)</button>
       <button class="action" data-action="export-csv" type="button">📊 Einsatzübersicht für Excel (CSV)</button>
-      <button class="action" data-action="import-json" type="button">⬆️ Backup wieder einlesen</button>
+      <button class="action" data-action="import-json" type="button">⬆️ Sicherung einlesen</button>
       <input type="file" id="file-import" accept="application/json" style="display:none">
     </div>
   </div>
@@ -1246,8 +1251,8 @@ function tplMehr(){
     <h2>RH-Flächensuchassistent</h2>
     <div class="hint" style="margin-bottom:10px;">Der RH-Flächensuchassistent ist eine eigenständige, kontofreie App. Über seinen Export erzeugt er eine JSON-Datei mit Auftrag, Gebiet, Wetter, taktischer Zusammenfassung, Kartengeometrie und Fundmeldungen. Einsatz-Exporte können hier additiv eingelesen werden: Vorhandene Angaben in Alarm/Abschluss werden nicht überschrieben; ein neuer Suchtrupp, ein Tagebucheintrag, Fundmeldungen und vorhandene Tracks werden ergänzt.</div>
     <div class="menurow">
-      <button class="action" data-action="import-taktik" type="button">🎯 RH-Flächensuchassistent-Daten einlesen (JSON)</button>
-      <input type="file" id="file-import-taktik" accept="application/json" style="display:none"><div class="hint" style="margin:10px 0;">Einsatz-Logs aus Mantrailing- oder Trümmersuchassistent additiv übernehmen. Trainings- und Prüfungsbewertungen werden bewusst nicht importiert.</div><button class="action" data-action="import-searchassist" type="button">🐕 MT-/Trümmer-Assistent Einsatzdaten einlesen</button><input type="file" id="file-import-searchassist" accept="application/json" style="display:none">
+      <button class="action" data-action="import-taktik" type="button">🎯 Übergabe aus Flächensuchassistent einlesen</button>
+      <input type="file" id="file-import-taktik" accept="application/json" style="display:none"><div class="hint" style="margin:10px 0;">Einsatz-Logs aus Mantrailing- oder Trümmersuchassistent additiv übernehmen. Trainings- und Prüfungsbewertungen werden bewusst nicht importiert.</div><button class="action" data-action="import-searchassist" type="button">🐕 Übergabe aus Mantrailing-/Trümmerassistent einlesen</button><input type="file" id="file-import-searchassist" accept="application/json" style="display:none">
     </div>
   </div>
 
@@ -1261,8 +1266,8 @@ function tplMehr(){
     <h2>RH App-Familie · Datenaustausch</h2>
     <div class="hint">Optionaler RHS Exchange für gemeinsame Team-Stammdaten. Das Einsatzprotokoll bleibt vollständig eigenständig; Einsatz-, Vermissten- und Patientendaten werden hierüber nicht verteilt.</div>
     <div class="menurow">
-      <button class="action" data-action="rhs-export" type="button">⇩ Teamdaten austauschen</button>
-      <button class="action" data-action="rhs-import" type="button">⇧ RHS-Exchange-Datei einlesen</button>
+      <button class="action" data-action="rhs-export" type="button">⇩ Teamdaten exportieren</button>
+      <button class="action" data-action="rhs-import" type="button">⇧ Teamdaten importieren</button>
       <input id="file-import-rhs" type="file" accept="application/json,.json" style="display:none">
     </div>
     <div class="hint">Team-ID: ${esc(ensureRhsExchange().team.teamId||'wird beim ersten Export/Import erzeugt')}</div>
@@ -1825,7 +1830,7 @@ async function jsonExportieren(){
     }
   }
   backup._backupErstellt=new Date().toISOString();
-  dateiHerunterladen(JSON.stringify(backup, null, 2), 'application/json', `Einsatzprotokoll_${name}_${state.meta.datum}.json`);
+  dateiHerunterladen(JSON.stringify(backup, null, 2), 'application/json', `RHS_Sicherung_Einsatzprotokoll_${name}_${state.meta.datum}.json`);
 }
 
 function csvFeld(v){ return '"'+String(v??'').replace(/"/g,'""').replace(/\r?\n/g,' ')+'"'; }
@@ -2321,5 +2326,13 @@ async function init(){
 init();
 </script>
 <script id="ux-compact-helper">(function(){function foldHeading(h){if(!h||h.closest("details")||h.dataset.uxFolded)return;var level=Number(h.tagName.slice(1)),parent=h.parentNode;if(!parent)return;var d=document.createElement("details");d.className="ux-help-details";var s=document.createElement("summary");s.textContent=h.textContent.trim();d.appendChild(s);h.dataset.uxFolded="1";var n=h.nextSibling;h.remove();while(n){var next=n.nextSibling;if(n.nodeType===1&&/^H[1-6]$/.test(n.tagName)&&Number(n.tagName.slice(1))<=level)break;d.appendChild(n);n=next;}parent.insertBefore(d,n);}function init(){var patterns=[/allgemeine grundsätze/i,/so liest du/i,/rassetypische hinweise/i,/lebensphase.*lernfähigkeit/i,/eigenwahrnehmung.*selbstcheck/i,/trainingsaufbau-checkliste/i,/was die app kann/i,/bedienungsanleitung/i,/tastenkürzel/i];Array.from(document.querySelectorAll("h2,h3,h4")).filter(function(h){return patterns.some(function(r){return r.test(h.textContent||"")})}).forEach(foldHeading);}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();})();</script>
+
+<script id="rhs-pwa">/* Offline-Start und Installation – nur bei Aufruf über eine Webadresse; lokal geöffnet bleibt alles unverändert. */
+(function(){if(!/^https?:$/.test(location.protocol))return;try{
+ var l=document.querySelector('link[rel="manifest"]');if(l){l.setAttribute('href','manifest.webmanifest')}else{l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l)}
+ if(!document.querySelector('link[rel="apple-touch-icon"][href="apple-touch-icon.png"]')){var a=document.createElement('link');a.rel='apple-touch-icon';a.href='apple-touch-icon.png';document.head.appendChild(a)}
+ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(e){console.warn('Service Worker nicht registriert',e)});
+ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});
+}catch(e){}})();</script>
 </body>
 </html>
