@@ -1,0 +1,2325 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Einsatzprotokoll Personensuche – Rettungshundestaffel · Offline</title>
+<style>
+  :root{
+    --drk-red:#C8102E; --drk-red-dark:#8E0B22;
+    --ink:#1B1B18; --muted:#6B675F; --muted-2:#8b8779;
+    --paper:#F7F6F2; --panel:#FFFFFF; --line:#DDD8CC; --line-strong:#B9B29F;
+    --input-bg:#FFFFFF; --card-bg:#fdfcfa; --readonly-bg:#f2f0ea;
+    --amber:#B4650A; --amber-bg:#FCEEDB; --amber-text:#B4650A;
+    --green:#1E6B3C; --green-bg:#E4F3E9; --green-text:#1E6B3C;
+    --red-bg:#FBE2E4; --red-text:#8E0B22;
+    --focus:#1858B0;
+    --radius:8px;
+    --mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color-scheme: light;
+  }
+  html[data-theme="dark"]{
+    --ink:#ECE9E1; --muted:#B6B1A1; --muted-2:#8f8a78;
+    --paper:#141310; --panel:#201E18; --line:#39352A; --line-strong:#4C4738;
+    --input-bg:#241F16; --card-bg:#1C1A14; --readonly-bg:#2A2620;
+    --amber-bg:#3C2A10; --amber-text:#F2A65A;
+    --green-bg:#11311D; --green-text:#7BD79A;
+    --red-bg:#3B141A; --red-text:#FF9AA8;
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--sans);}
+  body{padding-bottom:74px;}
+  h1,h2,h3{font-family:var(--sans);margin:0 0 4px 0;font-weight:700;}
+  input,select,textarea,button{font-family:inherit;font-size:16px;color:var(--ink);}
+  a{color:var(--drk-red-dark);}
+  :focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+  button{cursor:pointer;}
+
+  /* ---------- Topbar ---------- */
+  #topbar{
+    position:sticky;top:0;z-index:20;
+    background:var(--drk-red);color:#fff;
+    padding:10px 12px 8px 12px;
+    box-shadow:0 2px 6px rgba(0,0,0,.15);
+  }
+  #topbar .row1{display:flex;align-items:center;gap:8px;}
+  #topbar .cross{
+    width:26px;height:26px;flex:0 0 auto;position:relative;
+  }
+  #topbar .cross:before,#topbar .cross:after{
+    content:"";position:absolute;background:#fff;
+  }
+  #topbar .cross:before{left:10px;top:0;width:6px;height:26px;}
+  #topbar .cross:after{left:0;top:10px;width:26px;height:6px;}
+  #topbar h1{font-size:15px;line-height:1.2;color:#fff;}
+  #topbar .sub{font-size:11.5px;opacity:.9;}
+  #topbar .row2{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  #topbar input.einsatznr{
+    flex:1 1 auto;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.5);
+    color:#fff;border-radius:6px;padding:7px 9px;font-family:var(--mono);font-size:14px;
+  }
+  #topbar input.einsatznr::placeholder{color:rgba(255,255,255,.75);}
+  #topbar .clock{font-family:var(--mono);font-size:13px;background:rgba(0,0,0,.18);border-radius:6px;padding:7px 8px;white-space:nowrap;}
+  #topbar .theme-toggle{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:6px;padding:7px 9px;font-size:14px;flex:0 0 auto;}
+  #savestatus{font-size:11px;opacity:.9;margin-top:4px;font-family:var(--mono);}
+  #quickbar{display:flex;gap:6px;margin-top:7px;overflow-x:auto;padding-bottom:1px;}
+  #quickbar button{flex:1 0 auto;border:1px solid rgba(255,255,255,.48);background:rgba(0,0,0,.16);color:#fff;border-radius:6px;padding:7px 8px;font-size:11.5px;font-weight:700;white-space:nowrap;}
+  #quickbar .net{flex:0 0 auto;cursor:default;}
+  #quickbar .net.offline{background:#fff;color:var(--drk-red-dark);}
+
+  /* ---------- Tabs ---------- */
+  #tabs{
+    position:sticky;bottom:0;z-index:20;
+    display:flex;overflow-x:auto;background:var(--panel);border-top:1px solid var(--line-strong);
+    box-shadow:0 -2px 6px rgba(0,0,0,.08);
+  }
+  #tabs button{
+    flex:1 0 auto;min-width:78px;background:none;border:none;padding:8px 4px 7px 4px;
+    display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);
+    border-top:3px solid transparent;
+  }
+  #tabs button .ic{font-size:18px;line-height:1;}
+  #tabs button .lb{font-size:10.5px;font-weight:600;letter-spacing:.02em;}
+  #tabs button.active{color:var(--drk-red);border-top-color:var(--drk-red);}
+
+  /* ---------- Layout ---------- */
+  main{padding:14px 12px 24px 12px;max-width:640px;margin:0 auto;}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:14px;}
+  .panel h2{font-size:14.5px;text-transform:none;color:var(--drk-red-dark);border-bottom:2px solid var(--drk-red);padding-bottom:6px;margin-bottom:12px;}
+  .panel h3{font-size:13px;color:var(--muted);margin:14px 0 8px 0;}
+  .hint{font-size:12px;color:var(--muted);margin-top:3px;}
+  .warnbox{background:var(--red-bg);border:1px solid var(--drk-red);color:var(--red-text);border-radius:var(--radius);padding:10px 12px;font-size:12.5px;margin-bottom:14px;line-height:1.4;}
+  .field{margin-bottom:12px;min-width:0;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:4px;}
+  .field input[type=text],.field input[type=number],.field input[type=date],.field input[type=time],
+  .field select,.field textarea{
+    width:100%;padding:9px 10px;border:1px solid var(--line-strong);border-radius:7px;background:var(--input-bg);
+  }
+  .field textarea{min-height:64px;resize:vertical;}
+  .readonly-field{background:var(--readonly-bg) !important;}
+  .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;}
+  .grid3{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:10px;}
+  .timefield{display:flex;gap:6px;min-width:0;}
+  .timefield input{flex:1;min-width:0;}
+  .btn-now{flex:0 0 auto;background:#1B1B18;color:#fff;border:none;border-radius:7px;padding:0 10px;font-size:12px;font-weight:600;}
+  .btn-mic{flex:0 0 auto;background:#1B1B18;color:#fff;border:none;border-radius:7px;padding:0 12px;font-size:14px;}
+  .pillgroup{display:flex;flex-wrap:wrap;gap:6px;}
+  .pill{position:relative;}
+  .pill input{position:absolute;opacity:0;pointer-events:none;}
+  .pill span{
+    display:inline-block;padding:8px 12px;border:1px solid var(--line-strong);border-radius:999px;
+    font-size:12.5px;background:var(--input-bg);color:var(--ink);
+  }
+  .pill input:checked + span{background:var(--drk-red);border-color:var(--drk-red);color:#fff;font-weight:600;}
+  .pill input:focus-visible + span{outline:2px solid var(--focus);outline-offset:2px;}
+  .checkrow{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13.5px;}
+  .checkrow input{width:20px;height:20px;}
+
+  .card{border:1px solid var(--line-strong);border-radius:var(--radius);padding:11px;margin-bottom:10px;background:var(--card-bg);}
+  .card .cardhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .card .cardhead .idx{font-family:var(--mono);font-size:12px;color:var(--muted);}
+  .card .del{background:none;border:none;color:var(--red-text);font-size:16px;padding:2px 6px;}
+  .addbtn{width:100%;padding:11px;border:1.5px dashed var(--line-strong);border-radius:var(--radius);background:none;color:var(--red-text);font-weight:700;font-size:13.5px;margin-top:2px;}
+  .geobox{margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .geobox .val{font-family:var(--mono);font-size:11.5px;color:var(--muted);}
+  .btn-geo{background:none;border:1px solid var(--line-strong);border-radius:7px;padding:6px 9px;font-size:12px;}
+
+  .counterbar{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+  .counter{background:var(--card-bg);border:1px solid var(--line);border-radius:var(--radius);padding:8px 12px;font-size:12px;color:var(--muted);}
+  .counter b{display:block;font-size:18px;color:var(--ink);font-family:var(--mono);}
+
+  .prioband{border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;border:1px solid;}
+  .prioband.hoch{background:var(--red-bg);border-color:var(--drk-red);color:var(--red-text);}
+  .prioband.mittel{background:var(--amber-bg);border-color:var(--amber);color:var(--amber-text);}
+  .prioband.niedrig{background:var(--green-bg);border-color:var(--green);color:var(--green-text);}
+  .prioband .big{font-size:17px;font-weight:800;letter-spacing:.01em;}
+  .prioband .sum{font-family:var(--mono);font-size:12px;opacity:.85;margin-top:2px;}
+
+  .riskcat{border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:12px;}
+  .riskcat:last-child{border-bottom:none;}
+  .riskcat .lbl{font-size:13px;font-weight:700;margin-bottom:7px;display:flex;align-items:center;gap:6px;}
+  .riskcat .grau-mark{font-size:10px;background:#1B1B18;color:#fff;border-radius:4px;padding:1px 5px;font-weight:700;}
+  .rangebox{display:flex;align-items:center;gap:8px;margin-top:7px;padding:8px;background:var(--readonly-bg);border-radius:7px;}
+  .rangebox input[type=number]{width:64px;padding:6px;border:1px solid var(--line-strong);border-radius:6px;background:var(--input-bg);}
+  .rangebox input[type=range]{flex:1;}
+
+  .thumbgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+  .thumb{border:1px solid var(--line-strong);border-radius:var(--radius);overflow:hidden;background:var(--card-bg);}
+  .thumb img{width:100%;height:120px;object-fit:cover;display:block;background:var(--readonly-bg);}
+  .thumb .meta{padding:6px 8px;font-size:11px;color:var(--muted);}
+  .thumb .meta .nm{color:var(--ink);font-weight:600;font-size:12px;display:block;margin-bottom:2px;}
+  .thumb .row{display:flex;justify-content:space-between;padding:0 8px 8px 8px;}
+  .thumb .row button{font-size:11px;padding:5px 8px;border-radius:6px;border:1px solid var(--line-strong);background:var(--input-bg);}
+  .trackcard{border:1px solid var(--line-strong);border-radius:var(--radius);padding:10px;margin-top:10px;background:var(--card-bg);}
+  .trackcard svg{width:100%;height:150px;display:block;background:var(--readonly-bg);border-radius:6px;margin:8px 0;}
+  .trackmeta{font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;}
+
+  .menurow{display:flex;flex-direction:column;gap:8px;}
+  .menurow button.action{
+    text-align:left;padding:11px 12px;border-radius:var(--radius);border:1px solid var(--line-strong);
+    background:var(--input-bg);font-size:13.5px;font-weight:600;color:var(--ink);
+  }
+  .menurow button.action.danger{color:var(--red-text);border-color:var(--drk-red);}
+  .archentry{border:1px solid var(--line);border-radius:var(--radius);padding:9px 10px;margin-bottom:8px;font-size:12.5px;}
+  .archentry .row{display:flex;justify-content:space-between;align-items:center;margin-top:6px;}
+  .archentry .row button{font-size:11.5px;padding:5px 9px;border-radius:6px;border:1px solid var(--line-strong);background:var(--input-bg);color:var(--ink);margin-left:6px;}
+  .statbox{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+  .statbox .s{background:var(--readonly-bg);border-radius:7px;padding:8px 10px;}
+  .statbox .s b{display:block;font-family:var(--mono);font-size:16px;}
+  .statbox .s span{font-size:11px;color:var(--muted);}
+  .statusline{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:-2px 0 10px;}
+  .statusbadge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:700;background:var(--readonly-bg);border:1px solid var(--line);}
+  .statusbadge.laufend{background:var(--amber-bg);color:var(--amber-text);border-color:var(--amber);}
+  .statusbadge.fertig{background:var(--green-bg);color:var(--green-text);border-color:var(--green);}
+  .quickchoices{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;}
+  .quickchoices button{flex:0 0 auto;padding:7px 9px;border-radius:999px;border:1px solid var(--line-strong);background:var(--input-bg);color:var(--ink);font-size:12px;}
+  .checklist{margin:0;padding-left:20px;font-size:12.5px;line-height:1.55;}
+  .check-ok{color:var(--green-text);font-weight:700;}
+  .check-warn{color:var(--amber-text);font-weight:700;}
+  #toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);z-index:40;display:none;align-items:center;gap:10px;max-width:calc(100% - 24px);background:#1b1b18;color:#fff;border-radius:8px;padding:10px 12px;box-shadow:0 4px 18px rgba(0,0,0,.3);font-size:12.5px;}
+  #toast button{border:1px solid #fff;background:none;color:#fff;border-radius:5px;padding:4px 8px;font-weight:700;}
+  .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;}
+
+  #printArea{display:none;}
+  @media print{
+    #topbar,#tabs,main,#toast{display:none !important;}
+    #printArea{display:block !important;padding:0;margin:0;font-family:Arial, sans-serif;color:#000;background:#fff;}
+    .pg{padding:14px 16px;page-break-after:always;}
+    .pg:last-child{page-break-after:auto;}
+    .pghead{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #C8102E;padding-bottom:6px;margin-bottom:10px;}
+    .pghead h2{margin:0;font-size:15px;}
+    .pghead .st{font-size:10px;color:#555;}
+    .ptable{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:11.5px;}
+    .ptable td,.ptable th{border:1px solid #999;padding:5px 6px;text-align:left;vertical-align:top;}
+    .ptable th{background:#eee;width:34%;}
+    .pnote{font-size:10px;color:#555;margin-top:4px;}
+    .pflag{background:#FBE2E4;border:1px solid #C8102E;padding:4px 7px;font-size:10px;font-weight:700;display:inline-block;margin-bottom:8px;color:#8E0B22;}
+  }
+</style>
+<style id="ux-compact-style">:root{--ux-content-max:980px} main,.app,#content{max-width:var(--ux-content-max);margin-left:auto;margin-right:auto}.ux-help-details{margin:.75rem 0 1rem;border:1px solid rgba(127,127,127,.28);border-radius:12px;padding:.1rem .8rem;background:rgba(127,127,127,.045)}.ux-help-details>summary{cursor:pointer;font-weight:700;padding:.75rem .1rem;line-height:1.3}.ux-help-details[open]>summary{margin-bottom:.35rem}@media(max-width:700px){main,.app,#content{max-width:100%}.ux-help-details{border-radius:10px;margin:.6rem 0;padding:.05rem .65rem}h1{line-height:1.15}h2{line-height:1.2}}</style>
+</head>
+<body>
+
+<header id="topbar">
+  <div class="row1">
+    <div class="cross" aria-hidden="true"></div>
+    <div>
+      <h1>Einsatzprotokoll Personensuche</h1>
+      <div class="sub">Rettungshundestaffel</div>
+    </div>
+  </div>
+  <div class="row2">
+    <input class="einsatznr" id="inp-einsatznummer" placeholder="Einsatznummer eintragen…" autocomplete="off">
+    <button class="theme-toggle" id="btn-theme" type="button" title="Hell/Dunkel umschalten">🌙</button>
+    <div class="clock" id="clock">--:--:--</div>
+  </div>
+  <div id="savestatus">wird geladen…</div>
+  <div id="quickbar" aria-label="Schnellzugriff">
+    <button type="button" data-quick="log" title="Alt+T">＋ Tagebuch</button>
+    <button type="button" data-quick="trupp" title="Alt+S">＋ Suchtrupp</button>
+    <button type="button" data-quick="check" title="Alt+P">✓ Prüfen</button>
+    <button type="button" class="net" id="netstatus" tabindex="-1">Offline bereit</button>
+  </div>
+</header>
+
+<nav id="tabs">
+  <button data-tab="alarm"><span class="ic">📋</span><span class="lb">Alarm</span></button>
+  <button data-tab="person"><span class="ic">🧍</span><span class="lb">Person</span></button>
+  <button data-tab="kraefte"><span class="ic">👥</span><span class="lb">Kräfte</span></button>
+  <button data-tab="suche"><span class="ic">🐕</span><span class="lb">Suche</span></button>
+  <button data-tab="tagebuch"><span class="ic">🕒</span><span class="lb">Tagebuch</span></button>
+  <button data-tab="abschluss"><span class="ic">✅</span><span class="lb">Abschluss</span></button>
+  <button data-tab="anlagen"><span class="ic">🗺️</span><span class="lb">Anlagen</span></button>
+  <button data-tab="mehr"><span class="ic">⋯</span><span class="lb">Mehr</span></button>
+</nav>
+
+<main id="content"></main>
+
+<div id="printArea"></div>
+<div id="toast" role="status" aria-live="polite"><span id="toasttext"></span><button id="toastundo" type="button">Rückgängig</button></div>
+
+<script>
+'use strict';
+
+/* ======================================================================
+   KONFIGURATION
+   ====================================================================== */
+
+// Kategorien der Vermissten-Risikobewertung. "grau:true" markiert die
+// Kategorien, die im Original-Formular grau hinterlegt sind: Wird dort
+// der niedrigste Punktwert (1) vergeben, gilt automatisch "Gefahr in
+// Verzug" – unabhängig von der Gesamtsumme (siehe Anmerkung 1 im
+// Originalformular). HINWEIS: Diese Zuordnung wurde aus der Rasterung
+// des PDFs (Stand 07.02.2017) abgelesen. Bitte einmal mit dem eigenen
+// Papierformular abgleichen und bei Abweichung hier anpassen.
+const RISIKO_KATEGORIEN = [
+  { key:'anzahl', label:'Anzahl der Personen', grau:true, optionen:[
+    { tag:'einzel', text:'Eine Person, alleine', points:1 },
+    { tag:'mehrere', text:'Mehrere Personen', range:[2,3] },
+  ]},
+  { key:'alter', label:'Alter', grau:false, optionen:[
+    { tag:'kind', text:'Kind (≤ 14 Jahre)', points:1 },
+    { tag:'aelter', text:'Älterer Mensch (≥ 65 Jahre)', points:1 },
+    { tag:'andere', text:'Andere', range:[2,3] },
+  ]},
+  { key:'medizinisch', label:'Medizinischer Zustand', grau:true, optionen:[
+    { tag:'lebensbedrohlich', text:'Bekannte lebensbedrohliche Krankheiten', points:1 },
+    { tag:'verletzt', text:'Bekannte oder vermutete Verletzungen/Krankheiten', range:[1,2] },
+    { tag:'tod', text:'Bekanntes Verhängnis (Tod)', points:3 },
+  ]},
+  { key:'psychisch', label:'Psychischer Zustand', grau:false, optionen:[
+    { tag:'ausnahmezustand', text:'Vermuteter psychischer Ausnahmezustand', points:1 },
+    { tag:'erkrankung', text:'Bekannte psychische Erkrankung', range:[1,2] },
+    { tag:'gesund', text:'Gesund', points:3 },
+  ]},
+  { key:'wetter', label:'Wetter der letzten 8 Stunden', grau:true, optionen:[
+    { tag:'extrem', text:'Extreme Temperaturen, ggf. starker Regen/Wind', points:1 },
+    { tag:'regen', text:'Regenschauer / schwache Brise, kühler', range:[1,2] },
+    { tag:'trocken', text:'Trocken, warm, windstill', points:3 },
+  ]},
+  { key:'kleidung', label:'Kleidung', grau:false, optionen:[
+    { tag:'leicht', text:'Leichte Bekleidung', points:1 },
+    { tag:'alltag', text:'Alltagsbekleidung mit Jacke/Hose/Sweatshirt', range:[1,2] },
+    { tag:'wetterfest', text:'Wetterfeste Kleidung', points:3 },
+  ]},
+  { key:'umgebung', label:'Umgebung', grau:true, optionen:[
+    { tag:'gefaehrlich', text:'Bekanntes gefährliches Gelände / Gefahrenstellen', points:1 },
+    { tag:'weniger', text:'Weniger gefährliches Gelände, keine bekannten Gefahrenstellen', range:[2,3] },
+  ]},
+];
+
+// Bekannte Funkrufnamen der eigenen Staffel – nur als Komfort-Vorschläge,
+// jederzeit im Formular überschreibbar.
+const FUNK_FAHRZEUGE = ['4-10-4', '4-10-2', 'Sonstiges / privater PKW'];
+const FUNK_HANDFUNK  = ['4-10-41','4-10-42','4-10-43','4-10-44','4-10-45','4-10-46','Sonstiges'];
+
+/* ======================================================================
+   STATE
+   ====================================================================== */
+
+const APP_VERSION = '3.3';
+function todayISO(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function nowHM(){ const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+
+function defaultRiskWerte(){
+  const o={};
+  for(const kat of RISIKO_KATEGORIEN){
+    const first = kat.optionen[0];
+    o[kat.key] = { tag:first.tag, wert: first.points !== undefined ? first.points : first.range[0] };
+  }
+  return o;
+}
+
+function defaultState(){
+  return {
+    meta:{
+      einsatznummer:'', datum: todayISO(),
+      alarmstichwort:'', auftrag:'', eigeneEinsatzleitung:'', fuehrungskanal:'',
+      alarmiertDurch:'', alarmzeitLST:'', alarmzeitEK:'',
+      eintreffenVorOrt:'', abfahrtEStelle:'', sammelpunkt:'',
+      einsatzende:'', alarmierungszeitMin:'', alarmierungszeitAuto:true,
+      einsatzort:'', entfernungKm:'', einsatzstaerke:'',
+      eloPolizeiName:'', eloPolizeiFunkrufname:'', eloPolizeiKanal:'',
+      eloFeuerwehrName:'', eloFeuerwehrFunkrufname:'', eloFeuerwehrKanal:'',
+      lage:'', personZuletztOrt:'', wannZuletztGesehen:'',
+      sonstiges:''
+    },
+    person:{
+      name:'', strasse:'', plzOrt:'', alterJahre:'', geschlecht:'',
+      staatsangehoerigkeit:'', lichtbild:'',
+      mobilEingeschraenkt:false, gehbehinderung:false, gehilfeWelche:'',
+      kommEingeschraenkt:false, kommGrund:'', benoetigtMedikamente:'',
+      symptome:'', groesse:'', haarfarbe:'', augenfarbe:'', brille:'',
+      gestalt:{hager:false,schlank:false,athletisch:false,kraeftig:false,dick:false},
+      kleidungKopf:'', kleidungOber:'', kleidungUnter:'', kleidungSchuhe:'', kleidungSonstiges:''
+    },
+    risiko:{
+      erfasser:'', kontrolle:'',
+      aktuelle: defaultRiskWerte(),
+      verlauf: []
+    },
+    kraefte:[],
+    suchtrupps:[],
+    tagebuch:[],
+    abschluss:{
+      hilfsorg:{feuerwehr:false,thw:false,johanniter:false,malteser:false,asb:false,sonstigeText:''},
+      kartenmaterial:{tk:false,sonstiges:false},
+      nachricht:{funk:false,mobilfunk:false},
+      gelaende:'',
+      wetterlage:{klar:false,bewoelkt:false,sonne:false,schnee:false,regen:false,nebel:false},
+      temperatur:'', windrichtung:'',
+      besondereVorkommnisse:'', ergebnis:'',
+      abschlussDatum:'', abschlussName:''
+    },
+    anlagen:[],
+    tracks:[],
+    settings:{ darkMode:null },
+    rhsExchange:{schemaVersion:1,instanceId:'',team:{teamId:'',handler:'',dogName:'',dogBirthDate:'',dogBreed:'',unit:'',disciplines:[],indicationType:''},fieldMeta:{},processedPackages:[]},
+    _schemaVersion: APP_VERSION
+  };
+}
+
+let state = defaultState();
+let currentTab = 'alarm';
+let saveTimer = null;
+let letzteLoeschung = null;
+let toastTimer = null;
+let archivIndexQueue = Promise.resolve();
+
+/* ======================================================================
+   RHS EXCHANGE v2 – optionale, verzögerungstolerante Team-Stammdaten
+   ====================================================================== */
+const RHS_EXCHANGE_FORMAT='rhs-exchange', RHS_EXCHANGE_SCHEMA=2, RHS_APP_ID='rh-einsatzprotokoll';
+function rhsUid(prefix='rhs'){ try{return prefix+'-'+crypto.randomUUID();}catch(e){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);} }
+function ensureRhsExchange(){
+  state.rhsExchange=state.rhsExchange&&typeof state.rhsExchange==='object'?state.rhsExchange:{};
+  const x=state.rhsExchange;
+  x.schemaVersion=RHS_EXCHANGE_SCHEMA; x.instanceId=x.instanceId||rhsUid('instance');
+  x.team=Object.assign({teamId:'',handler:'',dogName:'',dogBirthDate:'',dogBreed:'',unit:'',disciplines:[],indicationType:''},x.team||{});
+  x.fieldMeta=x.fieldMeta&&typeof x.fieldMeta==='object'?x.fieldMeta:{};
+  x.processedPackages=Array.isArray(x.processedPackages)?x.processedPackages.slice(-200):[];
+  return x;
+}
+function rhsMetaFor(field){ const x=ensureRhsExchange(); return x.fieldMeta[field]||{revision:0,updatedAt:'',sourceApp:'',sourceInstanceId:''}; }
+function rhsSetField(field,value,sourceApp=RHS_APP_ID,sourceInstanceId=null,incomingMeta=null){
+  const x=ensureRhsExchange(), old=x.team[field];
+  if(JSON.stringify(old)===JSON.stringify(value)) return false;
+  x.team[field]=value;
+  const prev=rhsMetaFor(field), inc=incomingMeta||{};
+  x.fieldMeta[field]={revision:incomingMeta?Number(inc.revision||prev.revision+1):Number(prev.revision||0)+1,updatedAt:inc.updatedAt||new Date().toISOString(),sourceApp:inc.sourceApp||sourceApp,sourceInstanceId:inc.sourceInstanceId||sourceInstanceId||x.instanceId};
+  return true;
+}
+function rhsTeamFromTaktik(data){
+  const r=data&&data.rhsTeam; if(!r||typeof r!=='object') return;
+  const x=ensureRhsExchange();
+  if(r.teamId&&!x.team.teamId) x.team.teamId=r.teamId;
+  ['handler','dogName','dogBirthDate','dogBreed','unit','indicationType'].forEach(f=>{if(r[f]&&!x.team[f]) rhsSetField(f,r[f],data.sourceApp||'rh-flaechensuchassistent');});
+  if(Array.isArray(r.disciplines)&&!x.team.disciplines.length) rhsSetField('disciplines',r.disciplines,data.sourceApp||'rh-flaechensuchassistent');
+}
+function buildRhsExchangePackage(){
+  const x=ensureRhsExchange(); if(!x.team.teamId) x.team.teamId=rhsUid('team');
+  return {rhsFormat:RHS_EXCHANGE_FORMAT,schemaVersion:RHS_EXCHANGE_SCHEMA,packageType:'team',packageId:rhsUid('pkg'),createdAt:new Date().toISOString(),source:{app:RHS_APP_ID,appVersion:APP_VERSION,instanceId:x.instanceId},records:[{type:'team',id:x.team.teamId,data:JSON.parse(JSON.stringify(x.team)),fieldMeta:JSON.parse(JSON.stringify(x.fieldMeta))}]};
+}
+function rhsDownload(){ const p=buildRhsExchangePackage(), blob=new Blob([JSON.stringify(p,null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='RHS_v2_Exchange_Einsatzprotokoll_'+todayISO()+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);planeSpeichern(); }
+function rhsNormalizePackage(raw){if(!raw||raw.rhsFormat!==RHS_EXCHANGE_FORMAT)throw new Error('Keine RHS-Exchange-Datei.');if(Number(raw.schemaVersion)>RHS_EXCHANGE_SCHEMA)throw new Error('Neuere RHS-Exchange-Version noch nicht unterstützt.');if(Array.isArray(raw.records))return raw;const x=raw.payload?.team;if(!x)throw new Error('Keine Team-Stammdaten enthalten.');const f=x.fields||{},v=(...ks)=>{for(const k of ks)if(f[k]&&f[k].value!==undefined)return f[k].value;return''},mm=(...ks)=>{for(const k of ks)if(f[k])return{revision:Number(f[k].revision||0),updatedAt:f[k].updatedAt||'',sourceApp:raw.sourceApp||''};return{revision:0}};return{rhsFormat:RHS_EXCHANGE_FORMAT,schemaVersion:2,packageId:raw.packageId||'',createdAt:raw.createdAt||'',source:{app:raw.sourceApp||'legacy-v1'},records:[{type:'team',id:x.teamId,data:{handler:v('handler'),dogName:v('dogName','dog'),dogBirthDate:v('dogBirthDate','geburtsdatum'),dogBreed:v('dogBreed','rasseFrei'),unit:v('unit'),disciplines:(()=>{const q=v('disciplines','sparte');return Array.isArray(q)?q:(q?[q]:[])})(),indicationType:v('indicationType','anzeigeart')},fieldMeta:{handler:mm('handler'),dogName:mm('dogName','dog'),dogBirthDate:mm('dogBirthDate','geburtsdatum'),dogBreed:mm('dogBreed','rasseFrei'),unit:mm('unit'),disciplines:mm('disciplines','sparte'),indicationType:mm('indicationType','anzeigeart')}}]};}
+function rhsImportFile(file){
+ const rd=new FileReader(); rd.onload=async()=>{try{const p=rhsNormalizePackage(JSON.parse(rd.result)); const x=ensureRhsExchange(); if(p.packageId&&x.processedPackages.includes(p.packageId)){alert('Dieses Austauschpaket wurde bereits verarbeitet.');return;} const rec=(p.records||[]).find(r=>r.type==='team'); if(!rec||!rec.data) throw new Error('Keine Team-Stammdaten enthalten.'); if(x.team.teamId&&rec.id&&x.team.teamId!==rec.id&&!confirm('Andere Team-ID. Gehören beide Profile zum selben realen Team und sollen feldweise zusammengeführt werden?')) return; if(rec.id)x.team.teamId=rec.id; else if(!x.team.teamId)x.team.teamId=rhsUid('team'); let neu=0,akt=0,konfl=0,alt=0; const fields=['handler','dogName','dogBirthDate','dogBreed','unit','disciplines','indicationType']; for(const f of fields){const iv=rec.data[f], im=(rec.fieldMeta||{})[f]||{revision:0}, lm=rhsMetaFor(f), lv=x.team[f], ir=Number(im.revision||0), lr=Number(lm.revision||0); if(JSON.stringify(iv)===JSON.stringify(lv)){alt++;continue;} if(!lv||(Array.isArray(lv)&&!lv.length)){rhsSetField(f,iv,p.source?.app,p.source?.instanceId,im);neu++;continue;} if(ir>lr){rhsSetField(f,iv,p.source?.app,p.source?.instanceId,im);akt++;continue;} if(ir<lr){alt++;continue;} konfl++; if(confirm(`Konflikt bei „${f}“:\n\nAktuell: ${Array.isArray(lv)?lv.join(', '):lv}\nImport: ${Array.isArray(iv)?iv.join(', '):iv}\n\nImportwert übernehmen?`)){rhsSetField(f,iv,p.source?.app,p.source?.instanceId,{...im,revision:lr+1});akt++;}}
+ if(p.packageId)x.processedPackages.push(p.packageId); await speichereZustand(); renderTab(); alert(`RHS Exchange: ${neu} neu, ${akt} aktualisiert, ${konfl} Konflikt(e), ${alt} unverändert/älter.`);}catch(e){alert('RHS-Exchange-Datei konnte nicht übernommen werden: '+e.message);}}; rd.readAsText(file);
+}
+function mitArchivIndexSperre(fn){ const run=archivIndexQueue.then(fn,fn); archivIndexQueue=run.catch(()=>{}); return run; }
+
+/* ======================================================================
+   STORAGE (offline, persönlich und gerätegebunden)
+   ====================================================================== */
+
+const KEY_AKTUELL = 'protokoll:aktuell';
+const KEY_ARCHIV_INDEX = 'protokoll:archiv-index';
+
+const lokalerSpeicher = (()=>{
+  if(window.storage && typeof window.storage.get==='function'){
+    return {name:'Gerätespeicher', get:(k)=>window.storage.get(k,false), set:(k,v)=>window.storage.set(k,v,false), delete:(k)=>window.storage.delete(k,false)};
+  }
+  if(window.indexedDB){
+    let fallbackAktiv=false;
+    const dbp = new Promise((resolve,reject)=>{
+      const req = indexedDB.open('RHS-Einsatzprotokoll',1);
+      req.onupgradeneeded=()=>req.result.createObjectStore('daten');
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error);
+    });
+    const tx = async (mode, fn)=>{
+      const db=await dbp;
+      return new Promise((resolve,reject)=>{
+        const t=db.transaction('daten',mode), store=t.objectStore('daten');
+        const req=fn(store);
+        req.onsuccess=()=>resolve(req.result);
+        req.onerror=()=>reject(req.error);
+      });
+    };
+    const mitFallback=async(op,ersatz)=>{ try{return await op();}catch(e){fallbackAktiv=true;return ersatz();} };
+    return {
+      get name(){return fallbackAktiv?'Browser-Speicher':'Offline-Datenbank';},
+      get:k=>mitFallback(async()=>({value:await tx('readonly',s=>s.get(k))}),()=>({value:localStorage.getItem(k)})),
+      set:(k,v)=>mitFallback(()=>tx('readwrite',s=>s.put(v,k)),()=>localStorage.setItem(k,v)),
+      delete:k=>mitFallback(()=>tx('readwrite',s=>s.delete(k)),()=>localStorage.removeItem(k))
+    };
+  }
+  return {
+    name:'Browser-Speicher',
+    get:async k=>({value:localStorage.getItem(k)}),
+    set:async(k,v)=>localStorage.setItem(k,v),
+    delete:async k=>localStorage.removeItem(k)
+  };
+})();
+
+function tiefZusammenfuehren(vorgabe, geladen){
+  if(Array.isArray(vorgabe)) return Array.isArray(geladen) ? geladen : vorgabe;
+  if(vorgabe && typeof vorgabe==='object'){
+    const out={...vorgabe};
+    if(geladen && typeof geladen==='object') Object.keys(geladen).forEach(k=>{
+      out[k] = k in vorgabe ? tiefZusammenfuehren(vorgabe[k], geladen[k]) : geladen[k];
+    });
+    return out;
+  }
+  return geladen===undefined ? vorgabe : geladen;
+}
+
+function normalisiereState(geladen){
+  const neu=tiefZusammenfuehren(defaultState(), geladen||{});
+  neu.kraefte=(neu.kraefte||[]).map(k=>tiefZusammenfuehren({funktion:'HF',name:'',eintreffen:'',verlaesst:'',fahrzeug:'',bereitschaft:'',bestaetigt:''},k));
+  neu.suchtrupps=(neu.suchtrupps||[]).map(s=>tiefZusammenfuehren(neuerSuchtrupp(),s));
+  neu.tagebuch=(neu.tagebuch||[]).map(e=>tiefZusammenfuehren(neuerTagebuchEintrag(),e));
+  neu.tracks=Array.isArray(neu.tracks)?neu.tracks:[];
+  neu._schemaVersion=APP_VERSION;
+  const vorher=state; state=neu; ensureRhsExchange(); state=vorher;
+  return neu;
+}
+
+function neuerSuchtrupp(){
+  return {team:'',rufname:'',gebietNr:'',suchart:{},trMarkierung:'',status:'bereit',auftrag:'',gefahren:'',rueckmeldeintervall:'',letzterKontakt:'',beginn:'',ende:'',geoStart:null,geoEnde:null,ergebnisart:'',ergebnis:'',abdeckung:''};
+}
+function neuerTagebuchEintrag(vorlage=''){
+  return {zeit:nowHM(),kategorie:vorlage||'Lage',ereignis:vorlage?vorlage+': ':'',bemerkung:'',bearbeiter:'',geo:null};
+}
+
+async function ladeZustand(){
+  try{
+    const res = await lokalerSpeicher.get(KEY_AKTUELL);
+    if(res && res.value){
+      const geladen = JSON.parse(res.value);
+      state = normalisiereState(geladen);
+    }
+    setSaveStatus(`geladen · ${lokalerSpeicher.name} · ${state._lastSaved || 'noch nicht gespeichert'}`);
+  }catch(e){
+    // Kein gespeicherter Einsatz vorhanden – mit leerem Formular starten
+    setSaveStatus('neues, leeres Protokoll · ' + lokalerSpeicher.name);
+  }
+}
+
+function planeSpeichern(){
+  setSaveStatus('wird gespeichert…');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(speichereZustand, 250);
+}
+
+async function speichereZustand(){
+  try{
+    const stamp = new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    state._lastSaved = stamp;
+    await lokalerSpeicher.set(KEY_AKTUELL, JSON.stringify(state));
+    setSaveStatus(`gespeichert · ${lokalerSpeicher.name} · ${stamp}`);
+  }catch(e){
+    setSaveStatus('⚠ Speichern fehlgeschlagen – Daten bleiben nur im aktuellen Fenster erhalten!');
+  }
+}
+
+function setSaveStatus(txt){
+  const el = document.getElementById('savestatus');
+  if(el) el.textContent = txt;
+}
+
+/* ======================================================================
+   HILFSFUNKTIONEN
+   ====================================================================== */
+
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function getByPath(obj, path){ return path.split('.').reduce((o,k)=> (o==null? o : o[k]), obj); }
+function setByPath(obj, path, val){
+  const parts = path.split('.');
+  const last = parts.pop();
+  const target = parts.reduce((o,k)=> o[k], obj);
+  target[last] = val;
+}
+function minutenDiff(t1, t2){
+  // t1, t2 im Format HH:MM. Geht von gleichem Tag aus, wickelt über Mitternacht.
+  if(!t1 || !t2) return '';
+  const [h1,m1] = t1.split(':').map(Number);
+  const [h2,m2] = t2.split(':').map(Number);
+  if([h1,m1,h2,m2].some(isNaN)) return '';
+  let diff = (h2*60+m2) - (h1*60+m1);
+  if(diff < 0) diff += 24*60;
+  return diff;
+}
+
+function berechneRisiko(werte){
+  let summe = 0, grauAusloeser = false;
+  for(const kat of RISIKO_KATEGORIEN){
+    const w = Number(werte[kat.key]?.wert ?? 1);
+    summe += w;
+    if(kat.grau && w === 1) grauAusloeser = true;
+  }
+  let stufe;
+  if(grauAusloeser || summe <= 11) stufe = 'hoch';
+  else if(summe <= 16) stufe = 'mittel';
+  else stufe = 'niedrig';
+  return {summe, stufe, grauAusloeser};
+}
+const PRIO_TEXT = {
+  hoch:'HOCH – Gefahr in Verzug',
+  mittel:'MITTEL – Angepasste Reaktion',
+  niedrig:'NIEDRIG – Evaluieren (sach- und fachgerecht beurteilen)'
+};
+
+function optionByTag(kat, tag){ return kat.optionen.find(o=>o.tag===tag); }
+
+/* ---------- Geolocation ---------- */
+
+function geoErfassen(erfolg){
+  if(!navigator.geolocation){ alert('Standortabfrage wird von diesem Browser nicht unterstützt.'); return; }
+  erfolg._btn && (erfolg._btn.textContent = '…');
+  navigator.geolocation.getCurrentPosition(
+    pos => erfolg({
+      lat: Number(pos.coords.latitude.toFixed(6)),
+      lon: Number(pos.coords.longitude.toFixed(6)),
+      acc: Math.round(pos.coords.accuracy)
+    }),
+    err => alert('Standort konnte nicht ermittelt werden: ' + err.message + ' (Hinweis: Standortfreigabe im Browser nötig; ohne GPS-Empfang ungenau.)'),
+    { enableHighAccuracy:true, timeout:12000 }
+  );
+}
+function geoLink(geo){
+  return `geo:${geo.lat},${geo.lon}`;
+}
+function geoText(geo){
+  return `📍 ${geo.lat}, ${geo.lon} (±${geo.acc} m)`;
+}
+
+/* ---------- Diktat (Web Speech API) ---------- */
+
+function starteDiktat(btn){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ alert('Spracheingabe wird von diesem Browser nicht unterstützt. Alternativ das Mikrofon der Bildschirmtastatur nutzen.'); return; }
+  const ta = document.getElementById(btn.dataset.diktTarget);
+  if(!ta) return;
+  const rec = new SR();
+  rec.lang = 'de-DE';
+  rec.interimResults = false;
+  rec.continuous = false;
+  const altIcon = btn.textContent;
+  btn.textContent = '🔴';
+  rec.onresult = (e) => {
+    const text = e.results[0][0].transcript;
+    ta.value = (ta.value ? ta.value.trim() + ' ' : '') + text;
+    ta.dispatchEvent(new Event('input', {bubbles:true}));
+  };
+  rec.onerror = () => { alert('Spracheingabe fehlgeschlagen oder abgebrochen.'); };
+  rec.onend = () => { btn.textContent = altIcon; };
+  try{ rec.start(); }catch(e){ btn.textContent = altIcon; }
+}
+
+/* ---------- Wetter-Codes (Open-Meteo / WMO) ---------- */
+
+function wmoZuWetterlage(code){
+  if(code===0) return 'klar';
+  if([1,2,3].includes(code)) return 'bewoelkt';
+  if([45,48].includes(code)) return 'nebel';
+  if([71,73,75,77,85,86].includes(code)) return 'schnee';
+  if([51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99].includes(code)) return 'regen';
+  return 'bewoelkt';
+}
+function gradZuKompass(deg){
+  const dirs = ['N','NO','O','SO','S','SW','W','NW'];
+  return dirs[Math.round(deg/45) % 8];
+}
+
+/* ---------- Datei-Download (gemeinsam für JSON/GPX) ---------- */
+
+function dateiHerunterladen(inhalt, mime, dateiname){
+  const blob = new Blob([inhalt], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = dateiname;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ======================================================================
+   RENDER: TAB-NAVIGATION
+   ====================================================================== */
+
+function wechsleTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('#tabs button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.tab===tab);
+  });
+  renderTab();
+  document.getElementById('content').scrollIntoView({block:'start'});
+}
+
+document.getElementById('tabs').addEventListener('click', e=>{
+  const btn = e.target.closest('button[data-tab]');
+  if(btn) wechsleTab(btn.dataset.tab);
+});
+
+function renderTab(){
+  const c = document.getElementById('content');
+  switch(currentTab){
+    case 'alarm': c.innerHTML = tplAlarm(); break;
+    case 'person': c.innerHTML = tplPerson(); break;
+    case 'kraefte': c.innerHTML = tplKraefte(); break;
+    case 'suche': c.innerHTML = tplSuche(); break;
+    case 'tagebuch': c.innerHTML = tplTagebuch(); break;
+    case 'abschluss': c.innerHTML = tplAbschluss(); break;
+    case 'anlagen': c.innerHTML = tplAnlagen(); break;
+    case 'mehr': c.innerHTML = tplMehr(); renderArchivListe(); break;
+  }
+  bindeContentEvents();
+}
+
+/* ======================================================================
+   TEMPLATE: ALARM (Stammdaten – ohne personenbezogene Daten)
+   ====================================================================== */
+
+function tplAlarm(){
+  const m = state.meta;
+  return `
+  <div class="warnbox">🔒 Auf dieser Seite dürfen laut Originalformular <b>keine personenbezogenen Daten</b> (Name, Geburtsdatum) der vermissten Person eingetragen werden. Diese gehören in den Reiter „Person“.</div>
+
+  <div class="panel">
+    <h2>Alarmierung</h2>
+    <div class="grid2">
+      <div class="field"><label>Datum</label><input type="date" data-path="meta.datum" value="${esc(m.datum)}"></div>
+      <div class="field"><label>Einsatznummer</label><input type="text" data-path="meta.einsatznummer" value="${esc(m.einsatznummer)}" placeholder="wie oben"></div>
+    </div>
+    <div class="field"><label>Alarmstichwort</label><input type="text" data-path="meta.alarmstichwort" value="${esc(m.alarmstichwort)}" placeholder="z. B. vermisste Person / Flächensuche"></div>
+    <div class="field"><label>Alarmiert durch (Name/Telefonnr.)</label><input type="text" data-path="meta.alarmiertDurch" value="${esc(m.alarmiertDurch)}"></div>
+    <div class="grid2">
+      <div class="field"><label>Alarmzeit LSt./Polizei</label>
+        <div class="timefield"><input type="time" data-path="meta.alarmzeitLST" value="${esc(m.alarmzeitLST)}"><button class="btn-now" data-action="now" data-target="meta.alarmzeitLST">Jetzt</button></div>
+      </div>
+      <div class="field"><label>Alarmzeit Einsatzkräfte</label>
+        <div class="timefield"><input type="time" data-path="meta.alarmzeitEK" value="${esc(m.alarmzeitEK)}"><button class="btn-now" data-action="now" data-target="meta.alarmzeitEK">Jetzt</button></div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Eintreffen vor Ort</label>
+        <div class="timefield"><input type="time" data-path="meta.eintreffenVorOrt" value="${esc(m.eintreffenVorOrt)}"><button class="btn-now" data-action="now" data-target="meta.eintreffenVorOrt">Jetzt</button></div>
+      </div>
+      <div class="field"><label>Abfahrt E-Stelle</label>
+        <div class="timefield"><input type="time" data-path="meta.abfahrtEStelle" value="${esc(m.abfahrtEStelle)}"><button class="btn-now" data-action="now" data-target="meta.abfahrtEStelle">Jetzt</button></div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Alarmierungszeit in Minuten ${m.alarmierungszeitAuto? '(automatisch)':'(manuell)'}</label>
+        <input type="number" data-path="meta.alarmierungszeitMin" value="${esc(m.alarmierungszeitMin)}" ${m.alarmierungszeitAuto?'readonly class="readonly-field"':''}>
+      </div>
+      <div class="field"><label>&nbsp;</label>
+        <label class="checkrow"><input type="checkbox" data-path="meta.alarmierungszeitAuto" ${m.alarmierungszeitAuto?'checked':''}> automatisch aus Alarm-/Eintreffzeit berechnen</label>
+      </div>
+    </div>
+    <div class="field"><label>Einsatzende</label>
+      <div class="timefield"><input type="time" data-path="meta.einsatzende" value="${esc(m.einsatzende)}"><button class="btn-now" data-action="now" data-target="meta.einsatzende">Jetzt</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Einsatzort</h2>
+    <div class="field"><label>Sammelpunkt (Straße/Ort)</label><input type="text" data-path="meta.sammelpunkt" value="${esc(m.sammelpunkt)}"></div>
+    <div class="field"><label>Einsatzort (Straße/Ort)</label><input type="text" data-path="meta.einsatzort" value="${esc(m.einsatzort)}"></div>
+    <div class="grid2">
+      <div class="field"><label>Entfernung (km)</label><input type="number" step="0.1" data-path="meta.entfernungKm" value="${esc(m.entfernungKm)}"></div>
+      <div class="field"><label>Einsatzstärke</label>
+        <div class="timefield">
+          <input type="number" data-path="meta.einsatzstaerke" value="${esc(m.einsatzstaerke)}">
+          <button class="btn-now" data-action="sync-staerke" title="aus Kräfteübersicht übernehmen">↺ Kräfte</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Einsatzleitung</h2>
+    <h3>Eigene Einsatzführung</h3>
+    <div class="grid2">
+      <div class="field"><label>Einsatzkoordinator/in</label><input type="text" data-path="meta.eigeneEinsatzleitung" value="${esc(m.eigeneEinsatzleitung)}"></div>
+      <div class="field"><label>Führungs-/Arbeitskanal</label><input type="text" data-path="meta.fuehrungskanal" value="${esc(m.fuehrungskanal)}" placeholder="TMO / DMO / Gruppe"></div>
+    </div>
+    <h3>Polizei (ELO)</h3>
+    <div class="field"><label>Name/Vorname</label><input type="text" data-path="meta.eloPolizeiName" value="${esc(m.eloPolizeiName)}"></div>
+    <div class="grid2">
+      <div class="field"><label>Funkrufname</label><input type="text" data-path="meta.eloPolizeiFunkrufname" value="${esc(m.eloPolizeiFunkrufname)}"></div>
+      <div class="field"><label>Kanal/DMO/TMO</label><input type="text" data-path="meta.eloPolizeiKanal" value="${esc(m.eloPolizeiKanal)}"></div>
+    </div>
+    <h3>Feuerwehr</h3>
+    <div class="field"><label>Name/Vorname</label><input type="text" data-path="meta.eloFeuerwehrName" value="${esc(m.eloFeuerwehrName)}"></div>
+    <div class="grid2">
+      <div class="field"><label>Funkrufname</label><input type="text" data-path="meta.eloFeuerwehrFunkrufname" value="${esc(m.eloFeuerwehrFunkrufname)}"></div>
+      <div class="field"><label>Kanal/DMO/TMO</label><input type="text" data-path="meta.eloFeuerwehrKanal" value="${esc(m.eloFeuerwehrKanal)}"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Angaben zur Lage</h2>
+    <div class="field"><label>Auftrag an die Rettungshundestaffel</label><textarea data-path="meta.auftrag" placeholder="Wer soll was, wo, womit und bis wann tun?">${esc(m.auftrag)}</textarea></div>
+    <div class="field"><label>Situationsdarstellung</label>
+      <div style="display:flex;gap:6px;align-items:flex-start;">
+        <textarea id="ta-lage" data-path="meta.lage" style="flex:1;">${esc(m.lage)}</textarea>
+        <button class="btn-mic" type="button" data-action="diktat" data-dikt-target="ta-lage" title="Diktieren">🎤</button>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Person wo zuletzt gesehen</label><input type="text" data-path="meta.personZuletztOrt" value="${esc(m.personZuletztOrt)}"></div>
+      <div class="field"><label>Wann zuletzt gesehen (Datum/Zeit)</label><input type="text" data-path="meta.wannZuletztGesehen" value="${esc(m.wannZuletztGesehen)}" placeholder="TT.MM.JJJJ, HH:MM"></div>
+    </div>
+    <div class="field"><label>Sonstiges</label><textarea data-path="meta.sonstiges">${esc(m.sonstiges)}</textarea></div>
+  </div>
+  `;
+}
+
+/* ======================================================================
+   TEMPLATE: PERSON (Personenbezogene Daten + Risikobewertung)
+   ====================================================================== */
+
+function checkedIf(v){ return v ? 'checked' : ''; }
+
+function tplPerson(){
+  const p = state.person;
+  const risk = berechneRisiko(state.risiko.aktuelle);
+  return `
+  <div class="warnbox">⚠ Diese Seite enthält <b>personenbezogene Daten</b>. Bitte gemäß DRK-Datenschutzrichtlinien behandeln – nicht über private Messenger (z. B. WhatsApp) versenden. Für dienstliche Kurzmitteilungen steht der DRK.Chat bzw. der offizielle Teams-Kanal zur Verfügung.</div>
+
+  <div class="panel">
+    <h2>Personalien der vermissten Person</h2>
+    <div class="field"><label>Name, Vorname</label><input type="text" data-path="person.name" value="${esc(p.name)}"></div>
+    <div class="grid2">
+      <div class="field"><label>Straße</label><input type="text" data-path="person.strasse" value="${esc(p.strasse)}"></div>
+      <div class="field"><label>PLZ Ort</label><input type="text" data-path="person.plzOrt" value="${esc(p.plzOrt)}"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Alter (Jahren)</label><input type="number" data-path="person.alterJahre" value="${esc(p.alterJahre)}"></div>
+      <div class="field"><label>Staatsangehörigkeit</label><input type="text" data-path="person.staatsangehoerigkeit" value="${esc(p.staatsangehoerigkeit)}"></div>
+    </div>
+    <div class="field"><label>Geschlecht</label>
+      <div class="pillgroup">
+        <label class="pill"><input type="radio" name="geschlecht" data-path="person.geschlecht" value="m" ${p.geschlecht==='m'?'checked':''}><span>männlich</span></label>
+        <label class="pill"><input type="radio" name="geschlecht" data-path="person.geschlecht" value="w" ${p.geschlecht==='w'?'checked':''}><span>weiblich</span></label>
+      </div>
+    </div>
+    <div class="field"><label>Lichtbild vorhanden (siehe Anlage)</label>
+      <div class="pillgroup">
+        <label class="pill"><input type="radio" name="lichtbild" data-path="person.lichtbild" value="ja" ${p.lichtbild==='ja'?'checked':''}><span>Ja</span></label>
+        <label class="pill"><input type="radio" name="lichtbild" data-path="person.lichtbild" value="nein" ${p.lichtbild==='nein'?'checked':''}><span>Nein</span></label>
+      </div>
+      <div class="hint">Foto bitte im Reiter „Anlagen“ hinterlegen.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Krankenanamnese</h2>
+    <label class="checkrow"><input type="checkbox" data-path="person.mobilEingeschraenkt" ${checkedIf(p.mobilEingeschraenkt)}> Mobilität eingeschränkt</label>
+    <label class="checkrow"><input type="checkbox" data-path="person.gehbehinderung" ${checkedIf(p.gehbehinderung)}> Gehbehinderung</label>
+    <div class="field"><label>Gehilfe, welche</label><input type="text" data-path="person.gehilfeWelche" value="${esc(p.gehilfeWelche)}"></div>
+    <label class="checkrow"><input type="checkbox" data-path="person.kommEingeschraenkt" ${checkedIf(p.kommEingeschraenkt)}> Kommunikationsfähigkeit eingeschränkt, weil…</label>
+    <div class="field"><input type="text" data-path="person.kommGrund" value="${esc(p.kommGrund)}"></div>
+    <div class="field"><label>Benötigt Medikamente</label>
+      <div class="pillgroup">
+        <label class="pill"><input type="radio" name="medika" data-path="person.benoetigtMedikamente" value="ja" ${p.benoetigtMedikamente==='ja'?'checked':''}><span>Ja</span></label>
+        <label class="pill"><input type="radio" name="medika" data-path="person.benoetigtMedikamente" value="nein" ${p.benoetigtMedikamente==='nein'?'checked':''}><span>Nein</span></label>
+      </div>
+    </div>
+    <div class="field"><label>Besondere Symptome / Ausprägung des Krankheitsbildes</label><textarea data-path="person.symptome">${esc(p.symptome)}</textarea></div>
+  </div>
+
+  <div class="panel">
+    <h2>Personenbeschreibung</h2>
+    <div class="grid3">
+      <div class="field"><label>Größe</label><input type="text" data-path="person.groesse" value="${esc(p.groesse)}"></div>
+      <div class="field"><label>Haarfarbe</label><input type="text" data-path="person.haarfarbe" value="${esc(p.haarfarbe)}"></div>
+      <div class="field"><label>Augenfarbe</label><input type="text" data-path="person.augenfarbe" value="${esc(p.augenfarbe)}"></div>
+    </div>
+    <div class="field"><label>Brille</label>
+      <div class="pillgroup">
+        <label class="pill"><input type="radio" name="brille" data-path="person.brille" value="ja" ${p.brille==='ja'?'checked':''}><span>Ja</span></label>
+        <label class="pill"><input type="radio" name="brille" data-path="person.brille" value="nein" ${p.brille==='nein'?'checked':''}><span>Nein</span></label>
+      </div>
+    </div>
+    <div class="field"><label>Gestalt</label>
+      <div class="pillgroup">
+        ${['hager','schlank','athletisch','kraeftig','dick'].map(k=>`
+          <label class="pill"><input type="checkbox" data-path="person.gestalt.${k}" ${checkedIf(p.gestalt[k])}><span>${k==='kraeftig'?'kräftig':k}</span></label>
+        `).join('')}
+      </div>
+    </div>
+    <h3>Kleidung</h3>
+    <div class="field"><label>Kopfbedeckung (Mütze, Basecap)</label><input type="text" data-path="person.kleidungKopf" value="${esc(p.kleidungKopf)}"></div>
+    <div class="field"><label>Oberbekleidung (Shirt, Longsleeve, Unterhemd, Jacke, Mantel)</label><input type="text" data-path="person.kleidungOber" value="${esc(p.kleidungOber)}"></div>
+    <div class="field"><label>Unterbekleidung (Cordhose, Latzhose, Jeans, Rock, Kleid, Mini)</label><input type="text" data-path="person.kleidungUnter" value="${esc(p.kleidungUnter)}"></div>
+    <div class="field"><label>Schuhe (Sneakers, Stiefel, Sandalen, barfuß)</label><input type="text" data-path="person.kleidungSchuhe" value="${esc(p.kleidungSchuhe)}"></div>
+    <div class="field"><label>Sonstiges</label><input type="text" data-path="person.kleidungSonstiges" value="${esc(p.kleidungSonstiges)}"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Vermissten-Risiko / Suchpriorität</h2>
+    <div class="grid2">
+      <div class="field"><label>Erfasser Name</label><input type="text" data-path="risiko.erfasser" value="${esc(state.risiko.erfasser)}"></div>
+      <div class="field"><label>Kontrolle (4-Augen-Prinzip)</label><input type="text" data-path="risiko.kontrolle" value="${esc(state.risiko.kontrolle)}"></div>
+    </div>
+
+    <div class="prioband ${risk.stufe}">
+      <div class="big">${PRIO_TEXT[risk.stufe]}</div>
+      <div class="sum">Gesamtsumme: ${risk.summe} Punkte ${risk.grauAusloeser?'· ausgelöst durch markierte Kategorie (Wert = 1)':''}</div>
+    </div>
+
+    ${RISIKO_KATEGORIEN.map(kat=>{
+      const cur = state.risiko.aktuelle[kat.key] || {};
+      return `
+      <div class="riskcat">
+        <div class="lbl">${esc(kat.label)} ${kat.grau?'<span class="grau-mark">Ø bei 1 = Gefahr in Verzug</span>':''}</div>
+        <div class="pillgroup">
+          ${kat.optionen.map(opt=>`
+            <label class="pill">
+              <input type="radio" name="risk-${kat.key}" data-riskkey="${kat.key}" data-tag="${opt.tag}"
+                ${cur.tag===opt.tag?'checked':''}>
+              <span>${esc(opt.text)} ${opt.points!==undefined? '('+opt.points+')' : '('+opt.range[0]+'–'+opt.range[1]+')'}</span>
+            </label>
+          `).join('')}
+        </div>
+        ${(()=>{
+          const opt = optionByTag(kat, cur.tag);
+          if(opt && opt.range){
+            return `<div class="rangebox">
+              <span style="font-size:12px;color:var(--muted)">Punktwert:</span>
+              <input type="range" min="${opt.range[0]}" max="${opt.range[1]}" step="1" value="${cur.wert}" data-riskrange="${kat.key}">
+              <input type="number" min="${opt.range[0]}" max="${opt.range[1]}" value="${cur.wert}" data-riskrangenum="${kat.key}">
+            </div>`;
+          }
+          return '';
+        })()}
+      </div>`;
+    }).join('')}
+
+    <button class="addbtn" data-action="risk-protokollieren" type="button">📌 Diese Bewertung mit Zeitstempel protokollieren</button>
+
+    ${state.risiko.verlauf.length? `
+      <h3>Verlauf früherer Bewertungen</h3>
+      ${state.risiko.verlauf.slice().reverse().map(v=>`
+        <div class="card"><div class="cardhead"><span class="idx">${esc(v.zeit)}</span><span class="idx">${v.summe} Pkt. · ${PRIO_TEXT[v.stufe].split(' –')[0]}</span></div></div>
+      `).join('')}
+    ` : ''}
+  </div>
+  `;
+}
+
+/* ======================================================================
+   TEMPLATE: KRÄFTEÜBERSICHT
+   ====================================================================== */
+
+function tplKraefte(){
+  const anwesend = state.kraefte.filter(k=>k.eintreffen && !k.verlaesst).length;
+  return `
+  <div class="counterbar">
+    <div class="counter">Eingetragen<b>${state.kraefte.length}</b></div>
+    <div class="counter">Aktuell vor Ort<b>${anwesend}</b></div>
+  </div>
+  <div class="panel">
+    <h2>Kräfteübersicht</h2>
+    <div class="hint" style="margin-bottom:10px;">HF = Hundeführer · HE = Helfer · EL = Einsatzkoordinator · FüAss = Führungsassistenz · GF = Gruppenführung</div>
+    ${state.kraefte.map((k,i)=>tplKraftCard(k,i)).join('')}
+    <button class="addbtn" data-action="add" data-list="kraefte" type="button">+ Kraft hinzufügen</button>
+  </div>
+  `;
+}
+function tplKraftCard(k,i){
+  return `
+  <div class="card">
+    <div class="cardhead"><span class="idx">Nr. ${i+1}</span><button class="del" data-action="remove" data-list="kraefte" data-index="${i}" type="button">🗑</button></div>
+    <div class="grid2">
+      <div class="field"><label>Funktion</label>
+        <select data-list="kraefte" data-index="${i}" data-field="funktion">
+          ${['HF','HE','EL','FüAss','GF','Fahrer','Sonstige'].map(f=>`<option value="${f}" ${k.funktion===f?'selected':''}>${f}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Name, Vorname</label><input type="text" data-list="kraefte" data-index="${i}" data-field="name" value="${esc(k.name)}"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Eintreffen</label>
+        <div class="timefield"><input type="time" data-list="kraefte" data-index="${i}" data-field="eintreffen" value="${esc(k.eintreffen)}"><button class="btn-now" data-action="now-list" data-list="kraefte" data-index="${i}" data-field="eintreffen">Jetzt</button></div>
+      </div>
+      <div class="field"><label>Verlässt Einsatz</label>
+        <div class="timefield"><input type="time" data-list="kraefte" data-index="${i}" data-field="verlaesst" value="${esc(k.verlaesst)}"><button class="btn-now" data-action="now-list" data-list="kraefte" data-index="${i}" data-field="verlaesst">Jetzt</button></div>
+      </div>
+    </div>
+    <div class="field"><label>Fahrzeug</label>
+      <input list="dl-fahrzeuge-${i}" type="text" data-list="kraefte" data-index="${i}" data-field="fahrzeug" value="${esc(k.fahrzeug)}">
+      <datalist id="dl-fahrzeuge-${i}">${FUNK_FAHRZEUGE.map(f=>`<option value="${esc(f)}">`).join('')}</datalist>
+    </div>
+    <div class="field"><label>Bereitschaft</label><input type="text" data-list="kraefte" data-index="${i}" data-field="bereitschaft" value="${esc(k.bereitschaft)}"></div>
+    <div class="field"><label>Bestätigung (Name = elektronische Unterschrift)</label><input type="text" data-list="kraefte" data-index="${i}" data-field="bestaetigt" value="${esc(k.bestaetigt||'')}"></div>
+  </div>`;
+}
+
+/* ======================================================================
+   TEMPLATE: SUCHTRUPPS
+   ====================================================================== */
+
+function tplSuche(){
+  const laufend = state.suchtrupps.filter(s=>s.status==='im_einsatz' || (s.beginn && !s.ende)).length;
+  const fertig = state.suchtrupps.filter(s=>s.status==='zurueck' || !!s.ende).length;
+  return `
+  <div class="counterbar">
+    <div class="counter">Suchtrupps<b>${state.suchtrupps.length}</b></div>
+    <div class="counter">Aktuell im Gelände<b>${laufend}</b></div>
+    <div class="counter">Zurück / beendet<b>${fertig}</b></div>
+  </div>
+  <div class="panel">
+    <h2>Suchtrupps &amp; Suchgebiete</h2>
+    <div class="hint" style="margin-bottom:10px;">WS = Wegesuche · FL = Flächensuche · MT = Mantrailing · TR = Trümmersuche. Die „Such-Geb.-Nr.“ sollte der Nummerierung in Gaia GPS entsprechen, damit Karte und Protokoll zusammenpassen.</div>
+    ${state.suchtrupps.map((s,i)=>tplTruppCard(s,i)).join('')}
+    <button class="addbtn" data-action="add" data-list="suchtrupps" type="button">+ Suchtrupp hinzufügen</button>
+  </div>
+  `;
+}
+function tplTruppCard(s,i){
+  const sa = s.suchart||{};
+  const statusKlasse=(s.status==='im_einsatz'?'laufend':s.status==='zurueck'?'fertig':'');
+  return `
+  <div class="card">
+    <div class="cardhead"><span class="idx">Trupp ${i+1}</span><button class="del" data-action="remove" data-list="suchtrupps" data-index="${i}" type="button" title="Trupp entfernen">🗑</button></div>
+    <div class="statusline"><span class="statusbadge ${statusKlasse}">${esc(({bereit:'Bereit',zugeteilt:'Zugeteilt',im_einsatz:'Im Gelände',zurueck:'Zurück',pausiert:'Pausiert'}[s.status]||'Bereit'))}</span></div>
+    <div class="field"><label>Hundeführer / Helfer / Hund</label><input type="text" data-list="suchtrupps" data-index="${i}" data-field="team" value="${esc(s.team)}"></div>
+    <div class="grid2">
+      <div class="field"><label>Rufname</label>
+        <input list="dl-funk-${i}" type="text" data-list="suchtrupps" data-index="${i}" data-field="rufname" value="${esc(s.rufname)}">
+        <datalist id="dl-funk-${i}">${FUNK_HANDFUNK.map(f=>`<option value="${esc(f)}">`).join('')}</datalist>
+      </div>
+      <div class="field"><label>Such-Geb.-Nr. (Gaia GPS)</label><input type="text" data-list="suchtrupps" data-index="${i}" data-field="gebietNr" value="${esc(s.gebietNr)}"></div>
+    </div>
+    <div class="field"><label>Suchart</label>
+      <div class="pillgroup">
+        ${['WS','FL','MT','TR'].map(t=>`
+          <label class="pill"><input type="checkbox" data-list="suchtrupps" data-index="${i}" data-field="suchart.${t}" ${checkedIf(sa[t])}><span>${t}</span></label>
+        `).join('')}
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Status</label><select data-list="suchtrupps" data-index="${i}" data-field="status">
+        ${[['bereit','Bereit'],['zugeteilt','Zugeteilt'],['im_einsatz','Im Gelände'],['pausiert','Pausiert'],['zurueck','Zurück / beendet']].map(([v,l])=>`<option value="${v}" ${s.status===v?'selected':''}>${l}</option>`).join('')}
+      </select></div>
+      <div class="field"><label>Rückmeldeintervall</label><input type="text" data-list="suchtrupps" data-index="${i}" data-field="rueckmeldeintervall" value="${esc(s.rueckmeldeintervall)}" placeholder="z. B. alle 30 Min."></div>
+    </div>
+    <div class="field"><label>Suchauftrag / Begrenzung</label><textarea data-list="suchtrupps" data-index="${i}" data-field="auftrag" placeholder="Gebiet, Grenzen, Laufrichtung, Auftrag">${esc(s.auftrag)}</textarea></div>
+    <div class="field"><label>Gefahren / Abbruchkriterien / Besonderheiten</label><input type="text" data-list="suchtrupps" data-index="${i}" data-field="gefahren" value="${esc(s.gefahren)}"></div>
+    ${sa.TR ? `<div class="field"><label>Markierung/Sektor (Trümmersuche)</label><input type="text" data-list="suchtrupps" data-index="${i}" data-field="trMarkierung" value="${esc(s.trMarkierung||'')}" placeholder="z.B. Sektor B, Structural Marking gesetzt"></div>` : ''}
+    <div class="grid2">
+      <div class="field"><label>Beginn Suche</label>
+        <div class="timefield"><input type="time" data-list="suchtrupps" data-index="${i}" data-field="beginn" value="${esc(s.beginn)}"><button class="btn-now" data-action="now-list" data-list="suchtrupps" data-index="${i}" data-field="beginn">Jetzt</button></div>
+        <div class="geobox">
+          <button class="btn-geo" type="button" data-action="geo-trupp" data-index="${i}" data-field="geoStart">📍 Standort</button>
+          ${s.geoStart? `<a class="val" href="${geoLink(s.geoStart)}">${geoText(s.geoStart)}</a>` : ''}
+        </div>
+      </div>
+      <div class="field"><label>Ende Suche</label>
+        <div class="timefield"><input type="time" data-list="suchtrupps" data-index="${i}" data-field="ende" value="${esc(s.ende)}"><button class="btn-now" data-action="now-list" data-list="suchtrupps" data-index="${i}" data-field="ende">Jetzt</button></div>
+        <div class="geobox">
+          <button class="btn-geo" type="button" data-action="geo-trupp" data-index="${i}" data-field="geoEnde">📍 Standort</button>
+          ${s.geoEnde? `<a class="val" href="${geoLink(s.geoEnde)}">${geoText(s.geoEnde)}</a>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="quickchoices">
+      <button type="button" data-action="trupp-start" data-index="${i}">▶ Start + protokollieren</button>
+      <button type="button" data-action="trupp-kontakt" data-index="${i}">📻 Rückmeldung jetzt</button>
+      <button type="button" data-action="trupp-ende" data-index="${i}">■ Ende + protokollieren</button>
+    </div>
+    <div class="field"><label>Letzter Funkkontakt</label><div class="timefield"><input type="time" data-list="suchtrupps" data-index="${i}" data-field="letzterKontakt" value="${esc(s.letzterKontakt)}"><button class="btn-now" data-action="trupp-kontakt" data-index="${i}">Jetzt</button></div></div>
+    <div class="field"><label>Gesamt-Suchzeit</label><input type="text" value="${s.beginn && s.ende? minutenDiff(s.beginn,s.ende)+' Min.' : '–'}" readonly class="readonly-field"></div>
+    <div class="field"><label>Gebiet vollständig abgesucht?</label>
+      <div class="pillgroup">
+        ${[['ja','Ja'],['teilweise','Teilweise'],['nein','Nein']].map(([v,l])=>`
+          <label class="pill"><input type="radio" name="abdeckung-${i}" data-list="suchtrupps" data-index="${i}" data-field="abdeckung" value="${v}" ${s.abdeckung===v?'checked':''}><span>${l}</span></label>
+        `).join('')}
+      </div>
+    </div>
+    <div class="field"><label>Ergebnisart</label>
+      <div class="pillgroup">${[['keine','Keine Feststellung'],['hinweis','Hinweis'],['fund','Fund / Anzeige'],['abbruch','Abbruch']].map(([v,l])=>`<label class="pill"><input type="radio" name="ergebnisart-${i}" data-list="suchtrupps" data-index="${i}" data-field="ergebnisart" value="${v}" ${s.ergebnisart===v?'checked':''}><span>${l}</span></label>`).join('')}</div>
+    </div>
+    <div class="field"><label>Ergebnisse der Suche</label>
+      <div style="display:flex;gap:6px;align-items:flex-start;">
+        <textarea id="ta-trupp-ergebnis-${i}" data-list="suchtrupps" data-index="${i}" data-field="ergebnis" style="flex:1;">${esc(s.ergebnis)}</textarea>
+        <button class="btn-mic" type="button" data-action="diktat" data-dikt-target="ta-trupp-ergebnis-${i}" title="Diktieren">🎤</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ======================================================================
+   TEMPLATE: TAGEBUCH (Ereignisprotokoll – live führbar)
+   ====================================================================== */
+
+function tplTagebuch(){
+  return `
+  <div class="panel">
+    <h2>Ereignisprotokoll</h2>
+    <div class="hint" style="margin-bottom:10px;">Chronologisches Einsatztagebuch. Mit „+ Jetzt“ wird ein neuer Eintrag mit aktuellem Zeitstempel angelegt – ideal zum lückenlosen Mitschreiben während des laufenden Einsatzes.</div>
+    <button class="addbtn" data-action="add-tagebuch-jetzt" type="button">+ Neuer Eintrag (jetzt)</button>
+    <div class="quickchoices" style="margin-top:8px;">
+      ${['Befehl','Rückmeldung','Lageänderung','Fund/Hinweis','Gefahr','Übergabe'].map(v=>`<button type="button" data-action="add-tagebuch-vorlage" data-vorlage="${v}">${v}</button>`).join('')}
+    </div>
+    <div style="height:10px"></div>
+    ${state.tagebuch.slice().map((e,i)=>i).reverse().map(i=>tplTagebuchCard(state.tagebuch[i], i)).join('')}
+  </div>
+  `;
+}
+function tplTagebuchCard(e,i){
+  return `
+  <div class="card">
+    <div class="cardhead">
+      <span class="idx">Lfd. Nr. ${i+1}</span>
+      <span style="display:flex;gap:6px;align-items:center;">
+        <input type="time" data-list="tagebuch" data-index="${i}" data-field="zeit" value="${esc(e.zeit)}" style="width:100px;padding:6px;border:1px solid var(--line-strong);border-radius:6px;background:var(--input-bg);color:var(--ink);">
+        <button class="del" data-action="remove" data-list="tagebuch" data-index="${i}" type="button">🗑</button>
+      </span>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Kategorie</label><select data-list="tagebuch" data-index="${i}" data-field="kategorie">${['Lage','Befehl','Rückmeldung','Lageänderung','Fund/Hinweis','Gefahr','Übergabe','Sonstiges'].map(v=>`<option ${e.kategorie===v?'selected':''}>${v}</option>`).join('')}</select></div>
+      <div class="field"><label>Erfasst durch</label><input type="text" data-list="tagebuch" data-index="${i}" data-field="bearbeiter" value="${esc(e.bearbeiter)}"></div>
+    </div>
+    <div class="field"><label>Darstellung der Ereignisse / Befehle / Anordnungen</label>
+      <div style="display:flex;gap:6px;align-items:flex-start;">
+        <textarea id="ta-tagebuch-${i}" data-list="tagebuch" data-index="${i}" data-field="ereignis" style="flex:1;">${esc(e.ereignis)}</textarea>
+        <button class="btn-mic" type="button" data-action="diktat" data-dikt-target="ta-tagebuch-${i}" title="Diktieren">🎤</button>
+      </div>
+    </div>
+    <div class="field"><label>Bemerkung</label><input type="text" data-list="tagebuch" data-index="${i}" data-field="bemerkung" value="${esc(e.bemerkung)}"></div>
+    <div class="geobox">
+      <button class="btn-geo" type="button" data-action="geo-tagebuch" data-index="${i}">📍 Standort erfassen</button>
+      ${e.geo? `<a class="val" href="${geoLink(e.geo)}">${geoText(e.geo)}</a>` : ''}
+    </div>
+  </div>`;
+}
+
+/* ======================================================================
+   TEMPLATE: ABSCHLUSS
+   ====================================================================== */
+
+function tplAbschluss(){
+  const a = state.abschluss;
+  return `
+  <div class="panel">
+    <h2>Andere Hilfsorganisationen</h2>
+    ${[['feuerwehr','Feuerwehr'],['thw','THW'],['johanniter','Johanniter'],['malteser','Malteser'],['asb','ASB']].map(([k,l])=>`
+      <label class="checkrow"><input type="checkbox" data-path="abschluss.hilfsorg.${k}" ${checkedIf(a.hilfsorg[k])}> ${l}</label>
+    `).join('')}
+    <div class="field"><label>Sonstige, wer</label><input type="text" data-path="abschluss.hilfsorg.sonstigeText" value="${esc(a.hilfsorg.sonstigeText)}"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Kartenmaterial &amp; Nachrichtenübermittlung</h2>
+    <label class="checkrow"><input type="checkbox" data-path="abschluss.kartenmaterial.tk" ${checkedIf(a.kartenmaterial.tk)}> Topografische Karte (TK) / Gaia GPS</label>
+    <label class="checkrow"><input type="checkbox" data-path="abschluss.kartenmaterial.sonstiges" ${checkedIf(a.kartenmaterial.sonstiges)}> Sonstiges</label>
+    <div class="hint" style="margin:6px 0 12px 0;">Kartenausschnitte/Screenshots bitte im Reiter „Anlagen“ hinterlegen.</div>
+    <label class="checkrow"><input type="checkbox" data-path="abschluss.nachricht.funk" ${checkedIf(a.nachricht.funk)}> Funk</label>
+    <label class="checkrow"><input type="checkbox" data-path="abschluss.nachricht.mobilfunk" ${checkedIf(a.nachricht.mobilfunk)}> Mobilfunk (Handy)</label>
+  </div>
+
+  <div class="panel">
+    <h2>Gelände &amp; Wetter</h2>
+    <div class="field"><label>Beschreibung des Geländes</label><textarea data-path="abschluss.gelaende">${esc(a.gelaende)}</textarea></div>
+    <button class="addbtn" data-action="wetter-auto" type="button">🌦 Wetter automatisch abrufen (Open-Meteo, per Standort)</button>
+    <div class="hint" style="margin-bottom:10px;">Braucht Standortfreigabe + Internetverbindung. Ohne Verbindung bitte manuell eintragen.</div>
+    <div class="field"><label>Wetterlage Einsatz</label>
+      <div class="pillgroup">
+        ${[['klar','Klar'],['bewoelkt','Bewölkt'],['sonne','Sonne'],['schnee','Schnee'],['regen','Regen'],['nebel','Nebel']].map(([k,l])=>`
+          <label class="pill"><input type="checkbox" data-path="abschluss.wetterlage.${k}" ${checkedIf(a.wetterlage[k])}><span>${l}</span></label>
+        `).join('')}
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Temperatur (°C)</label><input type="number" data-path="abschluss.temperatur" value="${esc(a.temperatur)}"></div>
+      <div class="field"><label>Windrichtung</label>
+        <select data-path="abschluss.windrichtung">
+          <option value="">–</option>
+          ${['N','NO','O','SO','S','SW','W','NW'].map(w=>`<option value="${w}" ${a.windrichtung===w?'selected':''}>${w}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Abschluss</h2>
+    <button class="addbtn" data-action="einsatz-beenden" type="button" style="margin-bottom:12px;">■ Einsatzende jetzt setzen + protokollieren</button>
+    <div class="field"><label>Besondere Vorkommnisse</label><textarea data-path="abschluss.besondereVorkommnisse">${esc(a.besondereVorkommnisse)}</textarea></div>
+    <div class="field"><label>Ergebnis des Einsatzes</label>
+      <div style="display:flex;gap:6px;align-items:flex-start;">
+        <textarea id="ta-abschluss-ergebnis" data-path="abschluss.ergebnis" style="flex:1;">${esc(a.ergebnis)}</textarea>
+        <button class="btn-mic" type="button" data-action="diktat" data-dikt-target="ta-abschluss-ergebnis" title="Diktieren">🎤</button>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Datum</label><input type="date" data-path="abschluss.abschlussDatum" value="${esc(a.abschlussDatum)}"></div>
+      <div class="field"><label>Name (elektronische Unterschrift)</label><input type="text" data-path="abschluss.abschlussName" value="${esc(a.abschlussName)}"></div>
+    </div>
+  </div>
+  `;
+}
+
+/* ======================================================================
+   TEMPLATE: ANLAGEN (Kartenmaterial / Fotos)
+   ====================================================================== */
+
+function tplAnlagen(){
+  const anzahlGeo = state.tagebuch.filter(e=>e.geo).length + state.suchtrupps.filter(s=>s.geoStart||s.geoEnde).length;
+  return `
+  <div class="panel">
+    <h2>Anlagen</h2>
+    <div class="hint" style="margin-bottom:10px;">Fotos von Karten, Screenshots aus Gaia GPS o.ä. Bilder werden vor dem Speichern automatisch verkleinert. Alternativ genügt auch ein Textverweis (z. B. Name des Gaia-GPS-Tracks), wenn kein Foto nötig ist.</div>
+    <input type="file" id="file-anlage" accept="image/*" style="display:none">
+    <button class="addbtn" id="btn-foto" type="button">📷 Foto/Karte hinzufügen</button>
+    <div style="height:8px"></div>
+    <button class="addbtn" data-action="add-anlage-text" type="button">📝 Nur Textverweis hinzufügen (z. B. Gaia-GPS-Track-Name)</button>
+
+    <div class="thumbgrid">
+      ${state.anlagen.map((a,i)=>tplAnlageThumb(a,i)).join('')}
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Gaia-GPS-Tracks</h2>
+    <div class="hint" style="margin-bottom:10px;">In Gaia GPS den Track als GPX oder KML exportieren und hier auswählen. Die Datei wird offline eingelesen, im Einsatz gespeichert und als vereinfachte Lageübersicht dargestellt. Es findet keine automatische Übertragung an Gaia GPS statt.</div>
+    <input type="file" id="file-track" accept=".gpx,.kml,application/gpx+xml,application/vnd.google-earth.kml+xml,text/xml,application/xml" style="display:none">
+    <button class="addbtn" id="btn-track" type="button">🧭 GPX-/KML-Track aus Gaia GPS importieren</button>
+    ${state.tracks.map((t,i)=>tplTrackCard(t,i)).join('')}
+  </div>
+
+  <div class="panel">
+    <h2>Koordinaten &amp; Gaia GPS</h2>
+    <div class="hint" style="margin-bottom:10px;">Erfasste Standorte und importierte Tracks lassen sich gemeinsam als GPX-Datei exportieren und wieder in Gaia GPS öffnen. Aktuell: ${anzahlGeo} Standort(e), ${state.tracks.length} Track(s).</div>
+    <button class="addbtn" data-action="gpx-export" type="button">🧭 Einsatzpunkte + Tracks als GPX exportieren</button>
+  </div>
+  `;
+}
+function tplTrackCard(t,i){
+  return `<div class="trackcard">
+    <div class="cardhead"><b>${esc(t.name||('Track '+(i+1)))}</b><button class="del" data-action="remove-track" data-index="${i}" type="button">🗑</button></div>
+    ${trackSvg(t.points||[])}
+    <div class="trackmeta"><span>${Number(t.distanzKm||0).toFixed(2)} km</span><span>${(t.points||[]).length} Punkte</span><span>${esc(t.format||'GPX')}</span></div>
+    <div class="field" style="margin-top:8px;"><label>Zuordnung / Notiz</label><input type="text" data-list="tracks" data-index="${i}" data-field="notiz" value="${esc(t.notiz||'')}" placeholder="z. B. Suchgebiet 3, Trupp 2"></div>
+  </div>`;
+}
+function trackSvg(points){
+  if(!points || points.length<2) return '<div class="hint">Keine darstellbare Trackgeometrie.</div>';
+  const lats=points.map(p=>p.lat), lons=points.map(p=>p.lon), minLat=Math.min(...lats), maxLat=Math.max(...lats), minLon=Math.min(...lons), maxLon=Math.max(...lons);
+  const dx=Math.max(maxLon-minLon,0.000001), dy=Math.max(maxLat-minLat,0.000001), pad=8;
+  const xy=points.map(p=>`${(pad+(p.lon-minLon)/dx*(100-pad*2)).toFixed(2)},${(100-pad-(p.lat-minLat)/dy*(100-pad*2)).toFixed(2)}`).join(' ');
+  return `<svg viewBox="0 0 100 100" role="img" aria-label="Vereinfachte Track-Vorschau"><polyline points="${xy}" fill="none" stroke="#C8102E" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="${xy.split(' ')[0].split(',')[0]}" cy="${xy.split(' ')[0].split(',')[1]}" r="2" fill="#1E6B3C"/><circle cx="${xy.split(' ').slice(-1)[0].split(',')[0]}" cy="${xy.split(' ').slice(-1)[0].split(',')[1]}" r="2" fill="#C8102E"/></svg>`;
+}
+function tplAnlageThumb(a,i){
+  return `
+  <div class="thumb">
+    ${a.thumb ? `<img src="${a.thumb}" alt="${esc(a.name)}">` : `<div style="height:120px;display:flex;align-items:center;justify-content:center;background:var(--readonly-bg);color:var(--muted);font-size:12px;">📝 Text</div>`}
+    <div class="meta">
+      <span class="nm">${esc(a.name)||'(ohne Namen)'}</span>
+      <input type="text" placeholder="Notiz" data-list="anlagen" data-index="${i}" data-field="notiz" value="${esc(a.notiz)}" style="width:100%;font-size:11px;padding:4px 6px;border:1px solid var(--line-strong);border-radius:5px;">
+    </div>
+    <div class="row">
+      ${a.fullKey? `<button data-action="anlage-oeffnen" data-index="${i}" type="button">Öffnen</button>` : '<span></span>'}
+      <button data-action="remove" data-list="anlagen" data-index="${i}" type="button">🗑 Entfernen</button>
+    </div>
+  </div>`;
+}
+
+/* ======================================================================
+   TEMPLATE: MEHR (Export, Archiv, Hinweise)
+   ====================================================================== */
+
+function tplMehr(){
+  return `
+  <div class="panel">
+    <h2>Dokument</h2>
+    <div class="menurow">
+      <button class="action" data-action="drucken" type="button">🖨️ Druckansicht / als PDF sichern</button>
+      <button class="action" data-action="export-json" type="button">⬇️ Vollständige Sicherung inkl. Bilder (JSON)</button>
+      <button class="action" data-action="export-csv" type="button">📊 Einsatzübersicht für Excel (CSV)</button>
+      <button class="action" data-action="import-json" type="button">⬆️ Backup wieder einlesen</button>
+      <input type="file" id="file-import" accept="application/json" style="display:none">
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>RH-Flächensuchassistent</h2>
+    <div class="hint" style="margin-bottom:10px;">Der RH-Flächensuchassistent ist eine eigenständige, kontofreie App. Über seinen Export erzeugt er eine JSON-Datei mit Auftrag, Gebiet, Wetter, taktischer Zusammenfassung, Kartengeometrie und Fundmeldungen. Einsatz-Exporte können hier additiv eingelesen werden: Vorhandene Angaben in Alarm/Abschluss werden nicht überschrieben; ein neuer Suchtrupp, ein Tagebucheintrag, Fundmeldungen und vorhandene Tracks werden ergänzt.</div>
+    <div class="menurow">
+      <button class="action" data-action="import-taktik" type="button">🎯 RH-Flächensuchassistent-Daten einlesen (JSON)</button>
+      <input type="file" id="file-import-taktik" accept="application/json" style="display:none"><div class="hint" style="margin:10px 0;">Einsatz-Logs aus Mantrailing- oder Trümmersuchassistent additiv übernehmen. Trainings- und Prüfungsbewertungen werden bewusst nicht importiert.</div><button class="action" data-action="import-searchassist" type="button">🐕 MT-/Trümmer-Assistent Einsatzdaten einlesen</button><input type="file" id="file-import-searchassist" accept="application/json" style="display:none">
+    </div>
+  </div>
+
+  <div class="panel" id="pruefung">
+    <h2>Plausibilitäts- und Abschlussprüfung</h2>
+    ${tplPruefung()}
+    <button class="addbtn" data-action="pruefen" type="button">✓ Angaben erneut prüfen</button>
+  </div>
+
+  <div class="panel">
+    <h2>RH App-Familie · Datenaustausch</h2>
+    <div class="hint">Optionaler RHS Exchange für gemeinsame Team-Stammdaten. Das Einsatzprotokoll bleibt vollständig eigenständig; Einsatz-, Vermissten- und Patientendaten werden hierüber nicht verteilt.</div>
+    <div class="menurow">
+      <button class="action" data-action="rhs-export" type="button">⇩ Teamdaten austauschen</button>
+      <button class="action" data-action="rhs-import" type="button">⇧ RHS-Exchange-Datei einlesen</button>
+      <input id="file-import-rhs" type="file" accept="application/json,.json" style="display:none">
+    </div>
+    <div class="hint">Team-ID: ${esc(ensureRhsExchange().team.teamId||'wird beim ersten Export/Import erzeugt')}</div>
+  </div>
+
+  <div class="panel">
+    <h2>Einsatz abschließen</h2>
+    <div class="menurow">
+      <button class="action" data-action="archivieren" type="button">📦 Einsatz archivieren &amp; neues Protokoll beginnen</button>
+      <button class="action danger" data-action="reset" type="button">🗑 Aktuelles Protokoll ohne Archivierung löschen</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Archiv</h2>
+    <div id="archiv-liste"><div class="hint">wird geladen…</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Statistik über archivierte Einsätze</h2>
+    <div class="hint">Wertet alle archivierten Einsätze aus (Alarmierungszeiten, Prioritätsstufen, Sucharten). Der aktuell laufende Einsatz ist nicht enthalten.</div>
+    <button class="addbtn" data-action="statistik-berechnen" type="button">📊 Statistik berechnen</button>
+    <div id="statistik-ausgabe"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Hinweise</h2>
+    <div class="hint" style="line-height:1.5;">
+      HF = Hundeführer · HE = Helfer · EL = Einsatzkoordinator · ELO = Einsatzleiter vor Ort<br>
+      WS = Wegesuche · FL = Flächensuche · MT = Mantrailing · TR = Trümmersuche<br><br>
+      Alle Daten werden ausschließlich lokal auf diesem Gerät gespeichert und nicht automatisch geteilt. Ein Browser- oder App-Wechsel hat einen eigenen Datenbestand. Für die Übergabe an KBL/Polizei bitte die Druckansicht oder eine bewusst erstellte Sicherung nutzen.<br><br>
+      Diese Anwendung ersetzt keine amtliche Software – bitte parallel zur laufenden RESQBIRD-Prüfung als Zwischenlösung bzw. Absicherung nutzen. Das JSON-Backup ist bewusst offen gehalten, damit Daten bei Bedarf in ein künftiges System übernommen werden können.<br><br>
+      Für die Verteilung von Suchgebieten empfiehlt sich statt WhatsApp der DRK.Chat (datenschutzkonform, vom DRK selbst betrieben).<br><br>
+      Gaia GPS: Lagekarten/Screenshots können als Bildanlage, exportierte GPX-/KML-Tracks direkt im Reiter „Anlagen“ eingelesen werden. Eine automatische Gaia-Synchronisierung oder gegenseitiges Live-Tracking benötigt eine Online-Schnittstelle und ist in der lokalen Einzeldatei nicht möglich.<br><br>
+      Tastaturkürzel: Alt+T Tagebucheintrag · Alt+S Suchtrupp · Alt+P Prüfung · Alt+1 bis Alt+8 Reiter wechseln · Strg/Cmd+Umschalt+S vollständige Sicherung.
+    </div>
+  </div>
+  `;
+}
+
+function pruefErgebnis(){
+  const fehlt=[];
+  const m=state.meta, a=state.abschluss;
+  if(!m.einsatznummer) fehlt.push('Einsatznummer fehlt');
+  if(!m.datum) fehlt.push('Einsatzdatum fehlt');
+  if(!m.einsatzort && !m.sammelpunkt) fehlt.push('Einsatzort oder Sammelpunkt fehlt');
+  if(!m.alarmzeitLST && !m.alarmzeitEK) fehlt.push('Alarmzeit fehlt');
+  if(!m.eigeneEinsatzleitung) fehlt.push('Eigene Einsatzführung fehlt');
+  if(!m.auftrag) fehlt.push('Auftrag der Rettungshundestaffel fehlt');
+  if(!state.person.name) fehlt.push('Name der vermissten Person fehlt');
+  if(!state.risiko.verlauf.length) fehlt.push('Risikobewertung wurde noch nicht mit Zeitstempel protokolliert');
+  state.suchtrupps.forEach((s,i)=>{
+    const nr=i+1;
+    if(!s.team) fehlt.push(`Trupp ${nr}: Team fehlt`);
+    if(!s.gebietNr) fehlt.push(`Trupp ${nr}: Suchgebiet fehlt`);
+    if(s.beginn && !s.ende) fehlt.push(`Trupp ${nr}: Suche läuft noch / Endzeit fehlt`);
+    if(s.ende && !s.abdeckung) fehlt.push(`Trupp ${nr}: Gebietsabdeckung fehlt`);
+    if(s.ende && !s.ergebnis) fehlt.push(`Trupp ${nr}: Ergebnis fehlt`);
+  });
+  if(!m.einsatzende) fehlt.push('Einsatzende fehlt');
+  if(!a.ergebnis) fehlt.push('Gesamtergebnis fehlt');
+  if(!a.abschlussDatum || !a.abschlussName) fehlt.push('Abschlussdatum oder Bestätigung fehlt');
+  return fehlt;
+}
+function tplPruefung(){
+  const fehlt=pruefErgebnis();
+  return fehlt.length
+    ? `<div class="check-warn">${fehlt.length} offene Angabe${fehlt.length===1?'':'n'}</div><ul class="checklist">${fehlt.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`
+    : '<p class="check-ok">✓ Keine offensichtlichen Lücken erkannt. Die fachliche Freigabe bleibt Aufgabe der Einsatzführung.</p>';
+}
+
+async function statistikBerechnen(){
+  const out = document.getElementById('statistik-ausgabe');
+  if(!out) return;
+  out.innerHTML = '<div class="hint">wird berechnet…</div>';
+  let index = [];
+  try{ const r = await lokalerSpeicher.get(KEY_ARCHIV_INDEX); if(r&&r.value) index = JSON.parse(r.value); }catch(e){}
+  if(!index.length){ out.innerHTML = '<div class="hint">Noch keine archivierten Einsätze vorhanden.</div>'; return; }
+
+  const einsaetze = [];
+  for(const e of index){
+    try{ const r = await lokalerSpeicher.get('archiv:'+e.id); einsaetze.push(normalisiereState(JSON.parse(r.value))); }catch(err){}
+  }
+  if(!einsaetze.length){ out.innerHTML = '<div class="hint">Archiv-Daten konnten nicht geladen werden.</div>'; return; }
+
+  const alarmZeiten = einsaetze.map(s=>Number(s.meta?.alarmierungszeitMin)).filter(n=>!isNaN(n) && n>=0);
+  const avgAlarm = alarmZeiten.length? Math.round(alarmZeiten.reduce((a,b)=>a+b,0)/alarmZeiten.length) : null;
+
+  const prio = {hoch:0, mittel:0, niedrig:0};
+  einsaetze.forEach(s=>{
+    if(s.risiko?.aktuelle){ const r = berechneRisiko(s.risiko.aktuelle); prio[r.stufe]++; }
+  });
+
+  const sucharten = {WS:0,FL:0,MT:0,TR:0};
+  let anzahlTrupps = 0;
+  einsaetze.forEach(s=>(s.suchtrupps||[]).forEach(t=>{
+    anzahlTrupps++;
+    Object.keys(sucharten).forEach(k=>{ if(t.suchart && t.suchart[k]) sucharten[k]++; });
+  }));
+
+  out.innerHTML = `
+    <div class="statbox">
+      <div class="s"><b>${einsaetze.length}</b><span>Archivierte Einsätze</span></div>
+      <div class="s"><b>${avgAlarm!==null? avgAlarm+' Min.' : '–'}</b><span>Ø Alarmierungszeit</span></div>
+      <div class="s"><b>${anzahlTrupps}</b><span>Suchtrupps gesamt</span></div>
+      <div class="s"><b>${einsaetze.length? (anzahlTrupps/einsaetze.length).toFixed(1) : '–'}</b><span>Ø Trupps/Einsatz</span></div>
+      <div class="s"><b>${prio.hoch} / ${prio.mittel} / ${prio.niedrig}</b><span>Priorität Hoch/Mittel/Niedrig</span></div>
+      <div class="s"><b>${Object.entries(sucharten).map(([k,v])=>k+':'+v).join(' ')}</b><span>Sucharten-Einsätze</span></div>
+    </div>
+  `;
+}
+
+async function renderArchivListe(){
+  const el = document.getElementById('archiv-liste');
+  if(!el) return;
+  let index = [];
+  try{
+    const res = await lokalerSpeicher.get(KEY_ARCHIV_INDEX);
+    if(res && res.value) index = JSON.parse(res.value);
+  }catch(e){ index = []; }
+  if(!index.length){ el.innerHTML = '<div class="hint">Noch keine archivierten Einsätze.</div>'; return; }
+  el.innerHTML = index.slice().reverse().map(e => `
+    <div class="archentry">
+      <b>${esc(e.einsatznummer||'(ohne Nummer)')}</b> · ${esc(e.datum||'')} · ${esc(e.ort||'')}
+      <div class="row">
+        <span class="hint" style="margin:0;">archiviert ${esc(e.archiviertAm)}</span>
+        <span>
+          <button data-action="archiv-laden" data-id="${esc(e.id)}" type="button">Laden</button>
+          <button data-action="archiv-loeschen" data-id="${esc(e.id)}" type="button">Löschen</button>
+        </span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ======================================================================
+   EVENT-BINDUNG (Delegation pro Tab-Inhalt)
+   ====================================================================== */
+
+function bindeContentEvents(){
+  const c = document.getElementById('content');
+
+  c.oninput = e => {
+    const t = e.target;
+    if(t.dataset.path){
+      let val = t.type==='checkbox' ? t.checked : t.value;
+      setByPath(state, t.dataset.path, val);
+      if(t.dataset.path==='meta.einsatznummer') document.getElementById('inp-einsatznummer').value=val;
+      nachFeldAenderung(t.dataset.path);
+      planeSpeichern();
+    } else if(t.dataset.list !== undefined && t.dataset.field){
+      setListFeld(t.dataset.list, Number(t.dataset.index), t.dataset.field, t.type==='checkbox'? t.checked : t.value);
+      planeSpeichern();
+      nachListAenderung(t.dataset.list, Number(t.dataset.index));
+    } else if(t.dataset.riskrange || t.dataset.riskrangenum){
+      const key = t.dataset.riskrange || t.dataset.riskrangenum;
+      const val = Number(t.value);
+      state.risiko.aktuelle[key].wert = val;
+      const slider = document.querySelector('[data-riskrange="'+key+'"]');
+      const numfeld = document.querySelector('[data-riskrangenum="'+key+'"]');
+      if(slider && slider!==t) slider.value = val;
+      if(numfeld && numfeld!==t) numfeld.value = val;
+      syncRiskUI();
+      planeSpeichern();
+    }
+  };
+
+  c.onchange = e => {
+    const t = e.target;
+    if(t.dataset.riskkey){
+      const kat = RISIKO_KATEGORIEN.find(k=>k.key===t.dataset.riskkey);
+      const opt = optionByTag(kat, t.dataset.tag);
+      state.risiko.aktuelle[kat.key] = { tag: opt.tag, wert: opt.points!==undefined? opt.points : opt.range[0] };
+      renderTab();
+      planeSpeichern();
+      return;
+    }
+    if(t.dataset.path && (t.type==='checkbox' || t.tagName==='SELECT' || t.type==='radio' || t.type==='date' || t.type==='time')){
+      let val = t.type==='checkbox' ? t.checked : t.value;
+      setByPath(state, t.dataset.path, val);
+      nachFeldAenderung(t.dataset.path);
+      renderTab();
+      planeSpeichern();
+    }
+    if(t.dataset.list !== undefined && t.dataset.field && (t.tagName==='SELECT' || t.type==='checkbox' || t.type==='radio' || t.type==='time')){
+      setListFeld(t.dataset.list, Number(t.dataset.index), t.dataset.field, t.type==='checkbox'? t.checked : t.value);
+      nachListAenderung(t.dataset.list, Number(t.dataset.index));
+      renderTab();
+      planeSpeichern();
+    }
+  };
+
+  c.onclick = e => {
+    const btn = e.target.closest('[data-action]');
+    if(!btn) return;
+    behandleAktion(btn);
+  };
+
+  // Foto-Upload (Anlagen-Tab)
+  const btnFoto = document.getElementById('btn-foto');
+  if(btnFoto){
+    btnFoto.onclick = () => document.getElementById('file-anlage').click();
+    document.getElementById('file-anlage').onchange = handleFotoUpload;
+  }
+  const btnTrack = document.getElementById('btn-track');
+  if(btnTrack){
+    btnTrack.onclick = () => document.getElementById('file-track').click();
+    document.getElementById('file-track').onchange = handleTrackImport;
+  }
+  // Import (Mehr-Tab)
+  const btnImport = document.getElementById('file-import');
+  if(btnImport) btnImport.onchange = handleJsonImport;
+  const btnImportTaktik = document.getElementById('file-import-taktik');
+  const btnSearchAssist=document.getElementById('file-import-searchassist'); if(btnSearchAssist) btnSearchAssist.onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)importSearchAssistantDeployment(f);};
+  if(btnImportTaktik) btnImportTaktik.onchange = handleTaktikImport;
+  const btnImportRhs=document.getElementById('file-import-rhs'); if(btnImportRhs) btnImportRhs.onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)rhsImportFile(f);};
+}
+
+function setListFeld(list, index, field, val){
+  const arr = state[list];
+  if(!arr || !arr[index]) return;
+  if(field.includes('.')){
+    const [a,b] = field.split('.');
+    if(!arr[index][a]) arr[index][a] = {};
+    arr[index][a][b] = val;
+  } else {
+    arr[index][field] = val;
+  }
+}
+
+function nachFeldAenderung(path){
+  if(path.startsWith('meta.alarmzeit') || path.startsWith('meta.eintreffenVorOrt') || path==='meta.alarmierungszeitAuto'){
+    if(state.meta.alarmierungszeitAuto){
+      const basis = state.meta.alarmzeitEK || state.meta.alarmzeitLST;
+      const diff = minutenDiff(basis, state.meta.eintreffenVorOrt);
+      if(diff !== '') state.meta.alarmierungszeitMin = diff;
+    }
+  }
+}
+function nachListAenderung(list, index){
+  // Kartenwerte werden bei Bedarf beim nächsten renderTab() live neu berechnet (z.B. Suchzeit)
+}
+
+function syncRiskUI(){
+  // Prioritätsband + Summenzeile aktualisieren ohne kompletten Re-Render (Fokus bleibt im Range-Feld)
+  const risk = berechneRisiko(state.risiko.aktuelle);
+  const band = document.querySelector('.prioband');
+  if(band){
+    band.className = 'prioband ' + risk.stufe;
+    band.querySelector('.big').textContent = PRIO_TEXT[risk.stufe];
+    band.querySelector('.sum').textContent = `Gesamtsumme: ${risk.summe} Punkte ${risk.grauAusloeser?'· ausgelöst durch markierte Kategorie (Wert = 1)':''}`;
+  }
+}
+
+/* ======================================================================
+   AKTIONEN
+   ====================================================================== */
+
+function behandleAktion(btn){
+  const action = btn.dataset.action;
+  switch(action){
+    case 'now': {
+      setByPath(state, btn.dataset.target, nowHM());
+      nachFeldAenderung(btn.dataset.target);
+      renderTab(); planeSpeichern();
+      break;
+    }
+    case 'now-list': {
+      setListFeld(btn.dataset.list, Number(btn.dataset.index), btn.dataset.field, nowHM());
+      renderTab(); planeSpeichern();
+      break;
+    }
+    case 'sync-staerke': {
+      state.meta.einsatzstaerke = state.kraefte.length;
+      renderTab(); planeSpeichern();
+      break;
+    }
+    case 'add': {
+      const list = btn.dataset.list;
+      if(list==='kraefte') state.kraefte.push({funktion:'HF',name:'',eintreffen:'',verlaesst:'',fahrzeug:'',bereitschaft:'',bestaetigt:''});
+      if(list==='suchtrupps') state.suchtrupps.push(neuerSuchtrupp());
+      renderTab(); planeSpeichern();
+      break;
+    }
+    case 'remove': {
+      const list=btn.dataset.list, index=Number(btn.dataset.index);
+      const [item]=state[list].splice(index,1);
+      letzteLoeschung={list,index,item};
+      renderTab(); planeSpeichern();
+      zeigeToast('Eintrag entfernt.');
+      break;
+    }
+    case 'add-tagebuch-jetzt': {
+      state.tagebuch.push(neuerTagebuchEintrag());
+      renderTab(); planeSpeichern();
+      setTimeout(()=>{ const areas = document.querySelectorAll('#content textarea'); if(areas.length) areas[0].focus(); }, 30);
+      break;
+    }
+    case 'add-tagebuch-vorlage': {
+      state.tagebuch.push(neuerTagebuchEintrag(btn.dataset.vorlage||'Lage'));
+      renderTab(); planeSpeichern();
+      setTimeout(()=>{ const ta=document.getElementById('ta-tagebuch-'+(state.tagebuch.length-1)); if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);} },30);
+      break;
+    }
+    case 'trupp-start': truppAktion(Number(btn.dataset.index),'start'); break;
+    case 'trupp-kontakt': truppAktion(Number(btn.dataset.index),'kontakt'); break;
+    case 'trupp-ende': truppAktion(Number(btn.dataset.index),'ende'); break;
+    case 'einsatz-beenden': {
+      const zeit=nowHM(); state.meta.einsatzende=zeit; state.abschluss.abschlussDatum=state.abschluss.abschlussDatum||todayISO();
+      state.tagebuch.push({...neuerTagebuchEintrag('Lageänderung'),ereignis:'Einsatzende / Einsatzmaßnahmen der Rettungshundestaffel beendet'});
+      renderTab(); planeSpeichern(); break;
+    }
+    case 'remove-track': {
+      const index=Number(btn.dataset.index), [item]=state.tracks.splice(index,1);
+      letzteLoeschung={list:'tracks',index,item}; renderTab(); planeSpeichern(); zeigeToast('Track entfernt.'); break;
+    }
+    case 'add-anlage-text': {
+      const name = prompt('Bezeichnung (z. B. „Gaia-GPS-Track Suchgebiet 3“):','');
+      if(name===null) return;
+      state.anlagen.push({id:'a'+Date.now(), name, notiz:'', thumb:'', fullKey:''});
+      renderTab(); planeSpeichern();
+      break;
+    }
+    case 'risk-protokollieren': {
+      const snap = berechneRisiko(state.risiko.aktuelle);
+      state.risiko.verlauf.push({
+        zeit: new Date().toLocaleString('de-DE',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}),
+        werte: JSON.parse(JSON.stringify(state.risiko.aktuelle)),
+        summe: snap.summe, stufe: snap.stufe
+      });
+      renderTab(); planeSpeichern();
+      break;
+    }
+    case 'geo-tagebuch': {
+      geoErfassen(geo => {
+        state.tagebuch[Number(btn.dataset.index)].geo = geo;
+        renderTab(); planeSpeichern();
+      });
+      break;
+    }
+    case 'geo-trupp': {
+      geoErfassen(geo => {
+        state.suchtrupps[Number(btn.dataset.index)][btn.dataset.field] = geo;
+        renderTab(); planeSpeichern();
+      });
+      break;
+    }
+    case 'diktat': starteDiktat(btn); break;
+    case 'wetter-auto': wetterAutomatisch(); break;
+    case 'gpx-export': gpxExportieren(); break;
+    case 'statistik-berechnen': statistikBerechnen(); break;
+    case 'anlage-oeffnen': {
+      oeffneAnlageVollbild(Number(btn.dataset.index));
+      break;
+    }
+    case 'drucken': druckansichtOeffnen(); break;
+    case 'export-json': jsonExportieren(); break;
+    case 'export-csv': csvExportieren(); break;
+    case 'import-json': document.getElementById('file-import').click(); break;
+    case 'import-taktik': document.getElementById('file-import-taktik').click(); break;
+    case 'import-searchassist': document.getElementById('file-import-searchassist')?.click(); break;
+    case 'rhs-export': rhsDownload(); break;
+    case 'rhs-import': document.getElementById('file-import-rhs')?.click(); break;
+    case 'archivieren': einsatzArchivieren(); break;
+    case 'reset': einsatzZuruecksetzen(); break;
+    case 'archiv-laden': archivLaden(btn.dataset.id); break;
+    case 'archiv-loeschen': archivLoeschen(btn.dataset.id); break;
+    case 'pruefen': renderTab(); setTimeout(()=>document.getElementById('pruefung')?.scrollIntoView({behavior:'smooth'}),20); break;
+  }
+}
+
+function truppAktion(index, art){
+  const s=state.suchtrupps[index]; if(!s) return;
+  const zeit=nowHM(), bez=s.team||('Trupp '+(index+1)), geb=s.gebietNr?` · Gebiet ${s.gebietNr}`:'';
+  if(art==='start'){
+    s.beginn=zeit; s.status='im_einsatz'; s.letzterKontakt=zeit;
+    state.tagebuch.push({...neuerTagebuchEintrag('Befehl'),ereignis:`Suchbeginn ${bez}${geb}`});
+  }else if(art==='kontakt'){
+    s.letzterKontakt=zeit;
+    state.tagebuch.push({...neuerTagebuchEintrag('Rückmeldung'),ereignis:`Funkkontakt ${bez}${geb}`,bemerkung:'Status ohne Besonderheiten / ergänzen'});
+  }else{
+    s.ende=zeit; s.status='zurueck'; s.letzterKontakt=zeit;
+    state.tagebuch.push({...neuerTagebuchEintrag('Rückmeldung'),ereignis:`Suchende ${bez}${geb}`,bemerkung:s.ergebnis||'Ergebnis ergänzen'});
+  }
+  renderTab(); planeSpeichern();
+}
+
+function zeigeToast(text){
+  const box=document.getElementById('toast');
+  document.getElementById('toasttext').textContent=text;
+  document.getElementById('toastundo').style.display=letzteLoeschung?'inline-block':'none';
+  box.style.display='flex'; clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{box.style.display='none';letzteLoeschung=null;},7000);
+}
+
+/* ---------- Fotos / Anlagen ---------- */
+
+function bildVerkleinern(file, maxDim, quality){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      img.onerror = reject;
+      img.onload = () => {
+        let {width, height} = img;
+        if(width > maxDim || height > maxDim){
+          if(width > height){ height = Math.round(height * maxDim/width); width = maxDim; }
+          else { width = Math.round(width * maxDim/height); height = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleFotoUpload(e){
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  try{
+    const [thumb, full] = await Promise.all([
+      bildVerkleinern(file, 220, 0.6),
+      bildVerkleinern(file, 1400, 0.72)
+    ]);
+    const id = 'a' + Date.now();
+    await lokalerSpeicher.set('anlage:'+id, full);
+    state.anlagen.push({id, name:file.name, notiz:'', thumb, fullKey:'anlage:'+id});
+    renderTab(); planeSpeichern();
+  }catch(err){
+    alert('Foto konnte nicht verarbeitet werden.');
+  }
+}
+
+async function oeffneAnlageVollbild(index){
+  const a = state.anlagen[index];
+  if(!a || !a.fullKey) return;
+  try{
+    const res = await lokalerSpeicher.get(a.fullKey);
+    const w = window.open('');
+    w.document.write(`<title>${esc(a.name)}</title><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;"><img src="${res.value}" style="max-width:100%;max-height:100vh;"></body>`);
+  }catch(err){
+    alert('Bild konnte nicht geladen werden.');
+  }
+}
+
+/* ---------- Gaia-GPS-Trackimport (GPX/KML, vollständig offline) ---------- */
+
+function rad(v){ return v*Math.PI/180; }
+function streckeKm(points){
+  let sum=0;
+  for(let i=1;i<points.length;i++){
+    const a=points[i-1],b=points[i], dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon);
+    const h=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;
+    sum+=6371*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
+  }
+  return sum;
+}
+function reduzierePunkte(points,max=1200){
+  if(points.length<=max) return points;
+  const out=[], step=(points.length-1)/(max-1);
+  for(let i=0;i<max;i++) out.push(points[Math.round(i*step)]);
+  return out;
+}
+function punktAusNode(n){
+  const lat=Number(n.getAttribute('lat')),lon=Number(n.getAttribute('lon'));
+  if(!Number.isFinite(lat)||!Number.isFinite(lon)) return null;
+  const ele=n.getElementsByTagNameNS('*','ele')[0]?.textContent||'';
+  const time=n.getElementsByTagNameNS('*','time')[0]?.textContent||'';
+  return {lat,lon,ele:ele===''?null:Number(ele),time};
+}
+function parseTrackDatei(text,dateiname){
+  const doc=new DOMParser().parseFromString(text,'application/xml');
+  if(doc.querySelector('parsererror')) throw new Error('Ungültige XML-Datei');
+  const lower=dateiname.toLowerCase(), ergebnisse=[];
+  if(lower.endsWith('.kml') || doc.documentElement.localName.toLowerCase()==='kml'){
+    [...doc.getElementsByTagNameNS('*','LineString')].forEach((ls,i)=>{
+      const coord=ls.getElementsByTagNameNS('*','coordinates')[0]?.textContent||'';
+      const points=coord.trim().split(/\s+/).map(v=>{const [lon,lat,ele]=v.split(',').map(Number);return {lat,lon,ele:Number.isFinite(ele)?ele:null,time:''};}).filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lon));
+      if(points.length){
+        const name=ls.parentElement?.getElementsByTagNameNS('*','name')[0]?.textContent?.trim()||dateiname.replace(/\.kml$/i,'')+(i?' '+(i+1):'');
+        ergebnisse.push({id:'t'+Date.now()+'-'+i,name,format:'KML',distanzKm:streckeKm(points),points:reduzierePunkte(points),notiz:''});
+      }
+    });
+  }else{
+    const tracks=[...doc.getElementsByTagNameNS('*','trk')];
+    const quellen=tracks.length?tracks:[doc];
+    quellen.forEach((trk,i)=>{
+      let nodes=[...trk.getElementsByTagNameNS('*','trkpt')];
+      if(!nodes.length) nodes=[...trk.getElementsByTagNameNS('*','rtept')];
+      if(!nodes.length) nodes=[...trk.getElementsByTagNameNS('*','wpt')];
+      const points=nodes.map(punktAusNode).filter(Boolean);
+      if(points.length){
+        const name=trk.getElementsByTagNameNS('*','name')[0]?.textContent?.trim()||dateiname.replace(/\.gpx$/i,'')+(i?' '+(i+1):'');
+        ergebnisse.push({id:'t'+Date.now()+'-'+i,name,format:'GPX',distanzKm:streckeKm(points),points:reduzierePunkte(points),notiz:''});
+      }
+    });
+  }
+  return ergebnisse;
+}
+function handleTrackImport(e){
+  const file=e.target.files[0]; e.target.value=''; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const tracks=parseTrackDatei(reader.result,file.name);
+      if(!tracks.length) throw new Error('Keine Trackpunkte gefunden');
+      state.tracks.push(...tracks); renderTab(); planeSpeichern();
+      zeigeToast(`${tracks.length} Track${tracks.length===1?'':'s'} importiert.`);
+    }catch(err){ alert('Track konnte nicht eingelesen werden: '+err.message); }
+  };
+  reader.onerror=()=>alert('Trackdatei konnte nicht gelesen werden.');
+  reader.readAsText(file);
+}
+
+function uebergabeBereitsImportiert(kennung){state.importierteUebergaben=Array.isArray(state.importierteUebergaben)?state.importierteUebergaben:[];return !!kennung&&state.importierteUebergaben.includes(kennung);}function uebergabeMerken(kennung){if(!kennung)return;state.importierteUebergaben=Array.isArray(state.importierteUebergaben)?state.importierteUebergaben:[];state.importierteUebergaben.push(kennung);state.importierteUebergaben=state.importierteUebergaben.slice(-300);}
+async function importSearchAssistantDeployment(file){const rd=new FileReader();rd.onload=async()=>{try{const o=JSON.parse(rd.result);if(o.bridgeFormat!=='rhs-search-assistant-deployment'||!o.state)throw Error('Falsches Format');if(!['Mantrailing','Trümmersuche'].includes(o.discipline))throw Error('Unbekannte Sparte');const a=o.state;if(String(a.mode||'').toLowerCase()!=='einsatz')throw Error('Nur Einsatz-Exporte werden übernommen');const kennung=[o.sourceApp||'',o.discipline,o.createdAt||''].join('|');if(uebergabeBereitsImportiert(kennung)&&!confirm('Diese Einsatzdatei wurde bereits übernommen. Trotzdem erneut übernehmen? Dabei entstehen doppelte Protokolleinträge.'))return;state.tagebuch=state.tagebuch||[];const now=()=>new Date().toISOString(),add=(txt,t)=>{if(txt)state.tagebuch.push({zeit:t||now(),ereignis:txt})};add(`${o.discipline}: Team ${a.team||a.dog||'nicht angegeben'} · Ort ${a.place||a.lkp||'nicht angegeben'}`);if(a.wxTemp||a.wxWind||a.wxLocal)add(`${o.discipline}: Wetter ${a.wxTemp||'?'} °C · Wind ${a.wxWind||'?'} km/h / ${a.wxWindDir||'?'}° · lokal: ${a.wxLocal||'keine Angabe'}`,a.weatherAt);(a.events||[]).forEach(ev=>add(`${o.discipline}: ${ev.type}${ev.note?' – '+ev.note:''}`,ev.at));if(o.discipline==='Mantrailing'){add(`Mantrailing Abschluss: ${a.result||'ohne Ergebnisangabe'} · Endpunkt/Fundort: ${a.end||'nicht angegeben'} · Anzeige: ${a.finalIndication||'nicht angegeben'} · Personendifferenzierung: ${a.personDiff||'nicht angegeben'} · Endpool: ${a.endPool||'nicht angegeben'} / ${a.endPoolDog||'nicht angegeben'} · Auffindesituation: ${a.findSituation||'nicht angegeben'}`);if(a.radio)add('Mantrailing Funk-/Übergabemeldung: '+a.radio)}else{(a.finds||[]).forEach((f,i)=>add(`Trümmer Fund/Anzeige ${i+1}: ${f.note||''} · Sektor ${f.sector||'?'} · Quelle ${f.source||'?'} · Anzeige ${f.bark||'?'}`,f.at));let m=a.rubbleMarks||{};if(m.estimate||m.dogActual||m.actual){const dist=(p,q)=>{if(!p||!q)return null;let dx=(p.x-q.x),dy=(p.y-q.y),rel=Math.hypot(dx,dy)*100;if(+a.mapWidthM>0)return (Math.hypot(dx,dy)*(+a.mapWidthM)).toFixed(1)+' m';return rel.toFixed(1)+' % der Kartenbreite'};let parts=[];if(m.estimate&&m.dogActual)parts.push('HF-Einschätzung ↔ Hund '+dist(m.estimate,m.dogActual));if(m.dogActual&&m.actual)parts.push('Hund ↔ VP '+dist(m.dogActual,m.actual));if(m.estimate&&m.actual&&!m.dogActual)parts.push('HF-Einschätzung ↔ VP '+dist(m.estimate,m.actual));add('Trümmer Lagevergleich: '+(parts.join(' · ')||'Markierungen vorhanden')+' · Geruchsaustritt und VP-Lage können auseinanderliegen.')}}if(a.track?.length){state.tracks=state.tracks||[];state.tracks.push({id:'t'+Date.now(),name:o.discipline+' – '+(a.team||'Team')+' – Hundeführertrack',format:'RH-JSON',points:a.track.map(p=>({lat:p.lat,lon:p.lon,t:p.t})),notiz:'Import aus '+o.sourceApp});}add(o.discipline+'-Einsatzdaten vollständig aus Suchassistent übernommen');await uebergabeMerken(kennung);speichereZustand();renderTab();zeigeToast(o.discipline+'-Einsatzdaten übernommen.');}catch(e){alert('Einsatzdaten konnten nicht übernommen werden: '+e.message)}};rd.readAsText(file)}
+
+/* ---------- JSON Export / Import ---------- */
+
+/* ---------- JSON Export / Import ---------- */
+
+/* ---------- Wetter automatisch (Open-Meteo) ---------- */
+
+function wetterAutomatisch(){
+  if(!navigator.geolocation){ alert('Standortabfrage wird von diesem Browser nicht unterstützt. Bitte Wetter manuell eintragen.'); return; }
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+    try{
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data = await res.json();
+      const cw = data.current_weather;
+      if(!cw) throw new Error('keine Daten');
+      state.abschluss.temperatur = Math.round(cw.temperature);
+      state.abschluss.windrichtung = gradZuKompass(cw.winddirection);
+      Object.keys(state.abschluss.wetterlage).forEach(k => state.abschluss.wetterlage[k] = false);
+      state.abschluss.wetterlage[wmoZuWetterlage(cw.weathercode)] = true;
+      renderTab(); planeSpeichern();
+    }catch(err){
+      alert('Wetterdaten konnten nicht automatisch geladen werden (keine Verbindung?). Bitte manuell eintragen.');
+    }
+  }, err => {
+    alert('Standort konnte nicht ermittelt werden: ' + err.message);
+  }, { enableHighAccuracy:true, timeout:12000 });
+}
+
+async function jsonExportieren(){
+  const name = (state.meta.einsatznummer || 'einsatz').replace(/[^a-z0-9_-]/gi,'_');
+  const backup=JSON.parse(JSON.stringify(state));
+  for(let i=0;i<backup.anlagen.length;i++){
+    const a=backup.anlagen[i];
+    if(a.fullKey){
+      try{ const r=await lokalerSpeicher.get(a.fullKey); a.fullData=r?.value||''; }catch(e){ a.fullData=''; }
+    }
+  }
+  backup._backupErstellt=new Date().toISOString();
+  dateiHerunterladen(JSON.stringify(backup, null, 2), 'application/json', `Einsatzprotokoll_${name}_${state.meta.datum}.json`);
+}
+
+function csvFeld(v){ return '"'+String(v??'').replace(/"/g,'""').replace(/\r?\n/g,' ')+'"'; }
+function csvZeile(...werte){ return werte.map(csvFeld).join(';'); }
+function csvExportieren(){
+  const m=state.meta, risk=berechneRisiko(state.risiko.aktuelle), z=[];
+  z.push(csvZeile('EINSATZDATEN','Wert'));
+  [['Einsatznummer',m.einsatznummer],['Datum',m.datum],['Alarmstichwort',m.alarmstichwort],['Einsatzort',m.einsatzort],['Sammelpunkt',m.sammelpunkt],['Auftrag',m.auftrag],['Einsatzleitung',m.eigeneEinsatzleitung],['Alarmzeit',m.alarmzeitEK||m.alarmzeitLST],['Eintreffen',m.eintreffenVorOrt],['Einsatzende',m.einsatzende],['Priorität',PRIO_TEXT[risk.stufe]],['Ergebnis',state.abschluss.ergebnis]].forEach(r=>z.push(csvZeile(...r)));
+  z.push('',csvZeile('SUCHTRUPPS','Team','Rufname','Gebiet','Suchart','Status','Beginn','Ende','Minuten','Abdeckung','Ergebnisart','Ergebnis'));
+  state.suchtrupps.forEach((s,i)=>z.push(csvZeile(i+1,s.team,s.rufname,s.gebietNr,Object.entries(s.suchart||{}).filter(([,v])=>v).map(([k])=>k).join('/'),s.status,s.beginn,s.ende,minutenDiff(s.beginn,s.ende),s.abdeckung,s.ergebnisart,s.ergebnis)));
+  z.push('',csvZeile('TAGEBUCH','Zeit','Kategorie','Ereignis','Bemerkung','Erfasst durch','Koordinaten'));
+  state.tagebuch.forEach((e,i)=>z.push(csvZeile(i+1,e.zeit,e.kategorie,e.ereignis,e.bemerkung,e.bearbeiter,e.geo?`${e.geo.lat}, ${e.geo.lon}`:'')));
+  z.push('',csvZeile('TRACKS','Name','Distanz km','Punkte','Notiz'));
+  state.tracks.forEach((t,i)=>z.push(csvZeile(i+1,t.name,Number(t.distanzKm||0).toFixed(2),(t.points||[]).length,t.notiz)));
+  const name=(m.einsatznummer||'einsatz').replace(/[^a-z0-9_-]/gi,'_');
+  dateiHerunterladen('\uFEFF'+z.join('\r\n'),'text/csv;charset=utf-8',`Einsatzuebersicht_${name}_${m.datum}.csv`);
+}
+
+/* ---------- GPX-Export (Brücke zu Gaia GPS & Co.) ---------- */
+
+function gpxExportieren(){
+  const punkte = [];
+  state.tagebuch.forEach((e,i)=>{
+    if(e.geo) punkte.push({lat:e.geo.lat, lon:e.geo.lon, name:'Tagebuch '+(i+1), zeit:e.zeit, text:e.ereignis});
+  });
+  state.suchtrupps.forEach((s,i)=>{
+    if(s.geoStart) punkte.push({lat:s.geoStart.lat, lon:s.geoStart.lon, name:'Trupp '+(i+1)+' – Beginn', zeit:s.beginn, text:s.team});
+    if(s.geoEnde) punkte.push({lat:s.geoEnde.lat, lon:s.geoEnde.lon, name:'Trupp '+(i+1)+' – Ende', zeit:s.ende, text:s.ergebnis});
+  });
+  if(!punkte.length && !state.tracks.length){
+    alert('Noch keine Koordinaten oder importierten Tracks vorhanden.');
+    return;
+  }
+  const wpts = punkte.map(p => `  <wpt lat="${p.lat}" lon="${p.lon}"><name>${esc(p.name)}</name><desc>${esc(p.text||'')}</desc></wpt>`).join('\n');
+  const trks = state.tracks.map(t=>`  <trk><name>${esc(t.name||'Gaia-GPS-Track')}</name><desc>${esc(t.notiz||'')}</desc><trkseg>${(t.points||[]).map(p=>`<trkpt lat="${p.lat}" lon="${p.lon}">${Number.isFinite(p.ele)?`<ele>${p.ele}</ele>`:''}${p.time?`<time>${esc(p.time)}</time>`:''}</trkpt>`).join('')}</trkseg></trk>`).join('\n');
+  const gpx = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Einsatzprotokoll Rettungshundestaffel" xmlns="http://www.topografix.com/GPX/1/1">\n${wpts}\n${trks}\n</gpx>`;
+  const name = (state.meta.einsatznummer || 'einsatz').replace(/[^a-z0-9_-]/gi,'_');
+  dateiHerunterladen(gpx, 'application/gpx+xml', `Einsatzpunkte_${name}_${state.meta.datum}.gpx`);
+}
+
+function handleJsonImport(e){
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try{
+      const geladen = JSON.parse(reader.result);
+      if(!confirm('Aktuelles Protokoll durch die importierte Datei ersetzen?')) return;
+      state = normalisiereState(geladen);
+      for(const a of state.anlagen){
+        if(a.fullData){
+          const id=a.id||('a'+Date.now()+Math.random().toString(36).slice(2));
+          a.id=id; a.fullKey='anlage:'+id;
+          await lokalerSpeicher.set(a.fullKey,a.fullData);
+          delete a.fullData;
+        }
+      }
+      renderTab(); planeSpeichern();
+      alert('Import erfolgreich.');
+    }catch(err){ alert('Datei konnte nicht gelesen werden – ist es eine gültige JSON-Sicherung?'); }
+  };
+  reader.readAsText(file);
+}
+
+/* ======================================================================
+   IMPORT: RH-Flächensuchassistent (eigenständiges Programm)
+   Datei-Brücke per JSON, additiv: bestehende Angaben werden nicht
+   überschrieben, ein neuer Suchtrupp + Tagebucheintrag(e) kommen hinzu.
+   ====================================================================== */
+const TAKTIK_KOMPASS_ABK = {Nord:'N',Nordost:'NO',Ost:'O',Südost:'SO',Süd:'S',Südwest:'SW',West:'W',Nordwest:'NW'};
+const TAKTIK_RISIKO_LABEL = {trafficRisk:'Verkehr/Bahn',waterRisk:'tiefes Wasser',dropRisk:'Absturz/unklare Begehbarkeit',stormRisk:'Gewitter/Sturm',wildlifeRisk:'Jagd/Wild/Nutztiere',darkRisk:'Dunkelheit/schlechte Sicht'};
+const TAKTIK_SYMPTOM_LABEL = {SymFast:'FAST-Auffälligkeit (Schlaganfallverdacht)', SymChest:'Brustschmerz', SymBreath:'Atemnot', SymSeizure:'Krampfanfall', SymAllergy:'Allergie/anaphylaktische Reaktion', SymTrauma:'Trauma'};
+function taktikFundBemerkung(f){
+  // Reale Einsatz-/Patientendaten (xABCDE, Vitalwerte, Leitsymptome, Maßnahmen, Dringlichkeit) gehören
+  // hierher – anders als ins Trainingstagebuch, wo sie aus Datenschutzgründen ausgefiltert werden.
+  const parts=[f.meldung];
+  if(f.xabcde) parts.push(`xABCDE: x:${f.xabcde.x} A:${f.xabcde.A} B:${f.xabcde.B} C:${f.xabcde.C} D:${f.xabcde.D} E:${f.xabcde.E}`);
+  if(f.vitalwerte){
+    const v=f.vitalwerte;
+    const vitalTeile=[];
+    if(v.puls) vitalTeile.push('Puls '+v.puls+'/min');
+    if(v.atemfrequenz) vitalTeile.push('AF '+v.atemfrequenz+'/min');
+    if(v.blutdruck) vitalTeile.push('RR '+v.blutdruck);
+    if(v.spo2) vitalTeile.push('SpO₂ '+v.spo2+'%');
+    if(v.temperatur) vitalTeile.push('Temp '+v.temperatur+' °C');
+    if(v.blutzucker) vitalTeile.push('BZ '+v.blutzucker+' mg/dl');
+    if(v.schmerzskala) vitalTeile.push('Schmerz '+v.schmerzskala+'/10');
+    if(vitalTeile.length) parts.push('Vitalwerte: '+vitalTeile.join(', '));
+  }
+  if(f.leitsymptome && f.leitsymptome.length) parts.push('Leitsymptome: '+f.leitsymptome.map(k=>TAKTIK_SYMPTOM_LABEL[k]||k).join(', '));
+  if(f.dringlichkeit && f.dringlichkeit.level && f.dringlichkeit.level!=='unauffaellig'){
+    const kraefte=[f.dringlichkeit.nefVorschlag?'NEF':null, f.dringlichkeit.rtwVorschlag?'RTW':null].filter(Boolean).join('+');
+    parts.push(`Dringlichkeit (regelbasiert, keine Diagnose): ${f.dringlichkeit.level}${kraefte?' – Vorschlag: '+kraefte:''}`);
+  }
+  if(f.massnahmenprotokoll && f.massnahmenprotokoll.length) parts.push('Maßnahmen: '+f.massnahmenprotokoll.map(m=>m.zeit+' Uhr '+m.text).join(' / '));
+  if(f.notizen) parts.push(f.notizen);
+  return parts.filter(Boolean).join(' – ');
+}
+function taktikGeo(pt){
+  return pt && Number.isFinite(pt.lat) && Number.isFinite(pt.lon) ? {lat:pt.lat, lon:pt.lon, acc:'unbekannt'} : null;
+}
+function setMetaIfEmpty(pfad, wert){
+  if(!wert) return false;
+  const aktuell = getByPath(state, pfad);
+  if(aktuell !== undefined && aktuell !== null && String(aktuell).trim()) return false;
+  setByPath(state, pfad, wert);
+  return true;
+}
+function wendeTaktikImportAn(data){
+  rhsTeamFromTaktik(data);
+  const a=data.auftrag||{}, g=data.gebiet||{}, w=data.wetter||{}, l=data.lage||{}, z=data.zusammenfassung||{}, funde=data.funde||[], t=data.track||null;
+  const uebernommen=[];
+
+  if(setMetaIfEmpty('meta.einsatzort', g.placeName)) uebernommen.push('Einsatzort');
+  if(setMetaIfEmpty('meta.auftrag', a.assignedArea)) uebernommen.push('Auftrag Rettungshundestaffel');
+  if(setMetaIfEmpty('meta.lage', a.incidentWhat)) uebernommen.push('Angaben zur Lage');
+  if(setMetaIfEmpty('person.name', a.missingPerson)) uebernommen.push('Name der vermissten Person (bitte prüfen/aufteilen)');
+
+  if(Number.isFinite(w.temperature) && setMetaIfEmpty('abschluss.temperatur', String(w.temperature))) uebernommen.push('Temperatur (Abschluss)');
+  if(w.windDirectionCompass && TAKTIK_KOMPASS_ABK[w.windDirectionCompass] && setMetaIfEmpty('abschluss.windrichtung', TAKTIK_KOMPASS_ABK[w.windDirectionCompass])) uebernommen.push('Windrichtung (Abschluss)');
+  const wl=state.abschluss.wetterlage;
+  if(wl && !Object.values(wl).some(Boolean)){
+    if(['rain','drizzle','heavy'].includes(w.precipitation)){ wl.regen=true; uebernommen.push('Wetterlage: Regen'); }
+    else if(w.precipitation==='snow'){ wl.schnee=true; uebernommen.push('Wetterlage: Schnee'); }
+    else if(w.sun==='strong'){ wl.sonne=true; uebernommen.push('Wetterlage: Sonne'); }
+    else if(w.precipitation==='none' && w.sun!=='night'){ wl.klar=true; uebernommen.push('Wetterlage: klar'); }
+  }
+
+  // Zusätzlicher, neuer Suchtrupp (überschreibt nie einen bestehenden Eintrag)
+  const trupp = neuerSuchtrupp();
+  trupp.gebietNr = g.placeName || '';
+  trupp.suchart.FL = true;
+  const auftragZeilen=[];
+  if(a.assignedArea) auftragZeilen.push(a.assignedArea);
+  if(z.strategyName) auftragZeilen.push('Vorgehen: '+z.strategyName);
+  if(z.strategySteps && z.strategySteps.length) auftragZeilen.push(z.strategySteps.join(' '));
+  if(l.priorityInfo) auftragZeilen.push('Prioritäten: '+l.priorityInfo);
+  if(z.windAdvice) auftragZeilen.push('Wind: '+z.windAdvice);
+  if(t){
+    const trackTeile=[];
+    if(t.quelle==='live-gps'){
+      if(Number.isFinite(t.streckeMeter)) trackTeile.push(t.streckeMeter+' m eigene Strecke (Live-GPS)');
+      if(Number.isFinite(t.punkte)) trackTeile.push(t.punkte+' Trackpunkte');
+    } else if(t.quelle==='datei-import'){
+      trackTeile.push('Track aus Datei importiert');
+    }
+    if(t.hoehendaten && Number.isFinite(t.hoehendaten.minEle)){
+      const h=t.hoehendaten;
+      trackTeile.push(h.reliable ? `Höhe ${Math.round(h.minEle)}–${Math.round(h.maxEle)} m, Gefälle ca. ${h.slopePercent.toFixed(1)}%, Richtung ${h.aspectCompass}` : `Höhe ${Math.round(h.minEle)}–${Math.round(h.maxEle)} m (${h.positionClass})`);
+    }
+    if(trackTeile.length) auftragZeilen.push('Track: '+trackTeile.join(', '));
+  }
+  trupp.auftrag = auftragZeilen.join('\n');
+  const gefahrenTeile=[];
+  if(a.knownHazards) gefahrenTeile.push(a.knownHazards);
+  if(z.warnings && z.warnings.length) gefahrenTeile.push(z.warnings.join(' '));
+  else if(l.risiken && l.risiken.length) gefahrenTeile.push(l.risiken.map(k=>TAKTIK_RISIKO_LABEL[k]||k).join(', '));
+  trupp.gefahren = gefahrenTeile.join(' · ');
+  trupp.geoStart = taktikGeo(g.startPoint);
+  state.suchtrupps.push(trupp);
+  const truppIndex = state.suchtrupps.length; // 1-basiert für die Meldung an die Nutzerin
+
+  // Tagebucheintrag zur Nachvollziehbarkeit
+  const zusammenfassungKurz = [g.placeName, z.strategyName].filter(Boolean).join(' · ') || 'siehe neuer Suchtrupp';
+  state.tagebuch.push({
+    zeit: nowHM(), kategorie:'Lage',
+    ereignis:'RH-Flächensuchassistent-Daten importiert (Auftrag/Gebiet/Wetter/Taktik) → Suchtrupp '+truppIndex,
+    bemerkung: zusammenfassungKurz,
+    bearbeiter:'', geo: taktikGeo(g.startPoint)
+  });
+
+  // Fundmeldungen aus Schritt 5 des RH-Flächensuchassistenten (inkl. xABCDE, Vitalwerte,
+  // Leitsymptome, Maßnahmenprotokoll und regelbasierter Dringlichkeitseinschätzung –
+  // anders als beim Trainingstagebuch-Import ist das hier der vorgesehene Ort dafür).
+  funde.forEach(f=>{
+    state.tagebuch.push({
+      zeit: f.zeit || nowHM(), kategorie:'Fund/Hinweis',
+      ereignis:'Fundmeldung aus RH-Flächensuchassistent importiert (Fund '+f.nr+')',
+      bemerkung: taktikFundBemerkung(f),
+      bearbeiter:'', geo: taktikGeo(f)
+    });
+  });
+  if(funde.length) uebernommen.push(funde.length+' Fundmeldung'+(funde.length===1?'':'en'));
+
+  // Kartengeometrie als eigenständige Tracks übernehmen. Dadurch bleiben Suchgebietsgrenze,
+  // Hundeführerweg und Hundetrack auch im Einsatzprotokoll sichtbar und GPX-exportierbar.
+  const geo=data.geometrie||{}, neueTracks=[];
+  const addTrack=(name,points,notiz)=>{
+    const sauber=(points||[]).map(p=>({lat:Number(p.lat),lon:Number(p.lon),ele:Number.isFinite(Number(p.ele))?Number(p.ele):null,time:p.time||''})).filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lon));
+    if(sauber.length<2)return;
+    neueTracks.push({id:'t'+Date.now()+'-'+neueTracks.length,name,format:'RH-JSON',distanzKm:streckeKm(sauber),points:reduzierePunkte(sauber),notiz});
+  };
+  if(Array.isArray(geo.suchgebiet)&&geo.suchgebiet.length>=3){
+    const rand=geo.suchgebiet.slice();
+    const a=rand[0],b=rand[rand.length-1];
+    if(a&&b&&(a.lat!==b.lat||a.lon!==b.lon))rand.push({...a});
+    addTrack('Suchgebietsgrenze',rand,'Aus RH-Flächensuchassistent');
+  }
+  (Array.isArray(geo.hundefuehrerTrack)?geo.hundefuehrerTrack:[]).forEach((seg,i)=>addTrack('Hundeführertrack'+(i?' '+(i+1):''),seg,'Gelaufener Weg bis zum Export'));
+  addTrack('Importierter Hundeführertrack',geo.importierterTrack,'Aus RH-Flächensuchassistent');
+  addTrack('Hundetrack',geo.hundeTrack,'Aus RH-Flächensuchassistent');
+  if(neueTracks.length){state.tracks.push(...neueTracks);uebernommen.push(neueTracks.length+' Kartentrack'+(neueTracks.length===1?'':'s'));}
+
+  return {uebernommen, truppIndex};
+}
+function handleTaktikImport(e){
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const data = JSON.parse(reader.result);
+      if(!data || data.bridgeFormat!=='rhs-taktik-assistent-export') throw new Error('falsches-format');
+      if(data.mode && data.mode!=='einsatz') throw new Error('kein-einsatz');
+      const kennung = data.exportId ? 'taktik|'+data.exportId : '';
+      if(uebergabeBereitsImportiert(kennung) && !confirm('Diese Datei aus dem Flächensuchassistenten wurde bereits übernommen. Trotzdem erneut übernehmen? Dabei entsteht ein weiterer Suchtrupp.')) return;
+      const res = wendeTaktikImportAn(data);
+      uebergabeMerken(kennung);
+      renderTab(); planeSpeichern();
+      wechsleTab('suche');
+      alert('RH-Flächensuchassistent-Daten übernommen: neuer Suchtrupp '+res.truppIndex+' sowie ein Tagebucheintrag wurden angelegt.'+(res.uebernommen.length?'\nZusätzlich automatisch übernommen: '+res.uebernommen.join(', ')+'.':'')+'\n\nBitte den neuen Suchtrupp einem Team zuordnen und alle Angaben prüfen.');
+    }catch(err){ alert(err.message==='kein-einsatz'?'Diese Datei stammt aus Training oder Prüfung. In das Einsatzprotokoll werden aus Datenschutz- und Dokumentationsgründen nur Einsatz-Exporte übernommen.':'Datei konnte nicht gelesen werden – bitte eine JSON-Exportdatei des RH-Flächensuchassistenten wählen.'); }
+  };
+  reader.readAsText(file);
+}
+
+/* ---------- Archiv ---------- */
+
+async function einsatzArchivieren(){
+  const offen=pruefErgebnis();
+  if(offen.length && !confirm(`Die Prüfung zeigt noch ${offen.length} offene Angabe${offen.length===1?'':'n'}. Trotzdem archivieren?`)) return;
+  if(!confirm('Aktuellen Einsatz archivieren und ein neues, leeres Protokoll beginnen?')) return;
+  const id = 'e' + Date.now();
+  try{
+    await lokalerSpeicher.set('archiv:'+id, JSON.stringify(state));
+    await mitArchivIndexSperre(async()=>{
+      let index=[]; try{const r=await lokalerSpeicher.get(KEY_ARCHIV_INDEX);if(r&&r.value)index=JSON.parse(r.value);}catch(e){}
+      index.push({id,einsatznummer:state.meta.einsatznummer,datum:state.meta.datum,ort:state.meta.einsatzort,archiviertAm:new Date().toLocaleString('de-DE')});
+      await lokalerSpeicher.set(KEY_ARCHIV_INDEX,JSON.stringify(index));
+    });
+    state = defaultState();
+    await speichereZustand();
+    renderTab();
+    alert('Einsatz archiviert. Neues Protokoll bereit.');
+  }catch(err){
+    alert('Archivieren fehlgeschlagen. Bitte vorher ein JSON-Backup exportieren.');
+  }
+}
+
+async function archivLaden(id){
+  if(!confirm('Aktuelles Protokoll wird durch den archivierten Einsatz ersetzt. Vorher als JSON sichern?\n\nOK = trotzdem laden')) return;
+  try{
+    const res = await lokalerSpeicher.get('archiv:'+id);
+    state = normalisiereState(JSON.parse(res.value));
+    wechsleTab('alarm');
+    planeSpeichern();
+  }catch(err){ alert('Archiv-Eintrag konnte nicht geladen werden.'); }
+}
+
+async function archivLoeschen(id){
+  if(!confirm('Diesen Archiv-Eintrag endgültig löschen?')) return;
+  try{
+    await lokalerSpeicher.delete('archiv:'+id);
+    await mitArchivIndexSperre(async()=>{
+      let index=[]; try{const r=await lokalerSpeicher.get(KEY_ARCHIV_INDEX);if(r&&r.value)index=JSON.parse(r.value);}catch(e){}
+      index=index.filter(e=>e.id!==id); await lokalerSpeicher.set(KEY_ARCHIV_INDEX,JSON.stringify(index));
+    });
+    renderArchivListe();
+  }catch(err){ alert('Löschen fehlgeschlagen.'); }
+}
+
+function einsatzZuruecksetzen(){
+  if(!confirm('Wirklich ALLE Angaben des aktuellen Protokolls löschen? Das kann nicht rückgängig gemacht werden.')) return;
+  if(!confirm('Sicher? Es empfiehlt sich vorher ein JSON-Backup.')) return;
+  state = defaultState();
+  renderTab(); planeSpeichern();
+}
+
+/* ======================================================================
+   DRUCKANSICHT
+   ====================================================================== */
+
+function zeile(label, wert){
+  return `<tr><th>${esc(label)}</th><td>${wert!==undefined && wert!=='' ? esc(wert) : '–'}</td></tr>`;
+}
+
+function druckansichtOeffnen(){
+  const m = state.meta, p = state.person, a = state.abschluss;
+  const risk = berechneRisiko(state.risiko.aktuelle);
+  const stand = new Date().toLocaleString('de-DE');
+
+  let html = '';
+
+  // Seite 1 – Stammdaten (ohne personenbezogene Daten)
+  html += `<div class="pg"><div class="pghead"><h2>Einsatzprotokoll Personensuche</h2><span class="st">Ausgedruckt: ${esc(stand)}</span></div>
+    <table class="ptable">
+      ${zeile('Einsatznummer', m.einsatznummer)}
+      ${zeile('Datum', m.datum)}
+      ${zeile('Alarmstichwort', m.alarmstichwort)}
+      ${zeile('Auftrag Rettungshundestaffel', m.auftrag)}
+      ${zeile('Eigene Einsatzführung', [m.eigeneEinsatzleitung,m.fuehrungskanal].filter(Boolean).join(' · '))}
+      ${zeile('Alarmiert durch', m.alarmiertDurch)}
+      ${zeile('Alarmzeit LSt./Polizei', m.alarmzeitLST)}
+      ${zeile('Alarmzeit Einsatzkräfte', m.alarmzeitEK)}
+      ${zeile('Eintreffen vor Ort', m.eintreffenVorOrt)}
+      ${zeile('Abfahrt E-Stelle', m.abfahrtEStelle)}
+      ${zeile('Einsatzende', m.einsatzende)}
+      ${zeile('Alarmierungszeit (Min.)', m.alarmierungszeitMin)}
+      ${zeile('Sammelpunkt', m.sammelpunkt)}
+      ${zeile('Einsatzort', m.einsatzort)}
+      ${zeile('Entfernung (km)', m.entfernungKm)}
+      ${zeile('Einsatzstärke', m.einsatzstaerke)}
+      ${zeile('ELO Polizei', [m.eloPolizeiName,m.eloPolizeiFunkrufname,m.eloPolizeiKanal].filter(Boolean).join(' · '))}
+      ${zeile('ELO Feuerwehr', [m.eloFeuerwehrName,m.eloFeuerwehrFunkrufname,m.eloFeuerwehrKanal].filter(Boolean).join(' · '))}
+      ${zeile('Person wo zuletzt gesehen', m.personZuletztOrt)}
+      ${zeile('Wann zuletzt gesehen', m.wannZuletztGesehen)}
+    </table>
+    <p><b>Angaben zur Lage:</b><br>${esc(m.lage).replace(/\n/g,'<br>')}</p>
+    <p><b>Sonstiges:</b><br>${esc(m.sonstiges).replace(/\n/g,'<br>')}</p>
+  </div>`;
+
+  // Seite 2 – Personenbezogene Daten
+  html += `<div class="pg"><div class="pghead"><h2>Personalien der vermissten Person</h2><span class="st">Seite 2</span></div>
+    <div class="pflag">Personenbezogene Daten – vertraulich behandeln</div>
+    <table class="ptable">
+      ${zeile('Name, Vorname', p.name)}
+      ${zeile('Straße / PLZ Ort', [p.strasse,p.plzOrt].filter(Boolean).join(', '))}
+      ${zeile('Alter', p.alterJahre)}
+      ${zeile('Geschlecht', p.geschlecht)}
+      ${zeile('Staatsangehörigkeit', p.staatsangehoerigkeit)}
+      ${zeile('Mobilität', [p.mobilEingeschraenkt?'eingeschränkt':'', p.gehbehinderung?'Gehbehinderung':'', p.gehilfeWelche].filter(Boolean).join(' · '))}
+      ${zeile('Kommunikationsfähigkeit', p.kommEingeschraenkt? ('eingeschränkt: '+p.kommGrund) : '')}
+      ${zeile('Benötigt Medikamente', p.benoetigtMedikamente)}
+      ${zeile('Symptome / Krankheitsbild', p.symptome)}
+      ${zeile('Größe / Haarfarbe / Augenfarbe', [p.groesse,p.haarfarbe,p.augenfarbe].filter(Boolean).join(' · '))}
+      ${zeile('Brille', p.brille)}
+      ${zeile('Gestalt', Object.entries(p.gestalt).filter(([k,v])=>v).map(([k])=>k).join(', '))}
+      ${zeile('Kleidung', [p.kleidungKopf,p.kleidungOber,p.kleidungUnter,p.kleidungSchuhe,p.kleidungSonstiges].filter(Boolean).join(' · '))}
+    </table>
+  </div>`;
+
+  // Seite 3 – Risikobewertung
+  html += `<div class="pg"><div class="pghead"><h2>Vermissten-Risiko / Suchpriorität</h2><span class="st">Seite 3</span></div>
+    <p><b>Gesamtsumme: ${risk.summe} Punkte → ${esc(PRIO_TEXT[risk.stufe])}</b></p>
+    <table class="ptable">
+      ${RISIKO_KATEGORIEN.map(k=>{
+        const cur = state.risiko.aktuelle[k.key];
+        const opt = optionByTag(k, cur.tag);
+        return zeile(k.label, `${opt.text} (Wert: ${cur.wert})`);
+      }).join('')}
+      ${zeile('Erfasser', state.risiko.erfasser)}
+      ${zeile('Kontrolle (4-Augen-Prinzip)', state.risiko.kontrolle)}
+    </table>
+    ${state.risiko.verlauf.length? `<p><b>Verlauf:</b></p><table class="ptable"><tr><th>Zeit</th><th>Summe</th><th>Priorität</th></tr>${state.risiko.verlauf.map(v=>`<tr><td>${esc(v.zeit)}</td><td>${v.summe}</td><td>${esc(PRIO_TEXT[v.stufe])}</td></tr>`).join('')}</table>` : ''}
+  </div>`;
+
+  // Seite 4 – Kräfteübersicht
+  html += `<div class="pg"><div class="pghead"><h2>Kräfteübersicht</h2><span class="st">Seite 4</span></div>
+    <table class="ptable"><tr><th>Funktion</th><th>Name</th><th>Eintreffen</th><th>Verlässt</th><th>Fahrzeug</th><th>Bereitschaft</th><th>Bestätigung</th></tr>
+    ${state.kraefte.map(k=>`<tr><td>${esc(k.funktion)}</td><td>${esc(k.name)}</td><td>${esc(k.eintreffen)}</td><td>${esc(k.verlaesst)}</td><td>${esc(k.fahrzeug)}</td><td>${esc(k.bereitschaft)}</td><td>${esc(k.bestaetigt)}</td></tr>`).join('')}
+    </table>
+  </div>`;
+
+  // Seite 5 – Suchtrupps
+  html += `<div class="pg"><div class="pghead"><h2>Suchtrupps &amp; Ergebnisse</h2><span class="st">Seite 5</span></div>
+    <table class="ptable"><tr><th>Team / Status</th><th>Rufname</th><th>Gebiet / Auftrag</th><th>Suchart</th><th>Beginn</th><th>Ende</th><th>Abdeckung</th><th>Ergebnis</th></tr>
+    ${state.suchtrupps.map(s=>`<tr><td>${esc(s.team)}<br>${esc(s.status)}</td><td>${esc(s.rufname)}</td><td>${esc(s.gebietNr)}<br>${esc(s.auftrag)}${s.gefahren?'<br>Gefahr: '+esc(s.gefahren):''}</td><td>${Object.entries(s.suchart||{}).filter(([k,v])=>v).map(([k])=>k).join('/')}${s.trMarkierung?' ('+esc(s.trMarkierung)+')':''}</td><td>${esc(s.beginn)}${s.geoStart?' '+esc(geoText(s.geoStart)):''}</td><td>${esc(s.ende)}${s.geoEnde?' '+esc(geoText(s.geoEnde)):''}</td><td>${esc(s.abdeckung)}</td><td>${esc(s.ergebnisart)}<br>${esc(s.ergebnis)}</td></tr>`).join('')}
+    </table>
+  </div>`;
+
+  // Seite 6 – Tagebuch
+  html += `<div class="pg"><div class="pghead"><h2>Ereignisprotokoll</h2><span class="st">Seite 6</span></div>
+    <table class="ptable"><tr><th style="width:8%">Lfd.</th><th style="width:12%">Zeit</th><th style="width:14%">Art</th><th>Ereignis</th><th style="width:22%">Bemerkung / Standort</th></tr>
+    ${state.tagebuch.map((e,i)=>`<tr><td>${i+1}</td><td>${esc(e.zeit)}</td><td>${esc(e.kategorie)}${e.bearbeiter?'<br>'+esc(e.bearbeiter):''}</td><td>${esc(e.ereignis)}</td><td>${esc(e.bemerkung)}${e.geo?' '+esc(geoText(e.geo)):''}</td></tr>`).join('')}
+    </table>
+  </div>`;
+
+  // Seite 7 – Abschluss
+  html += `<div class="pg"><div class="pghead"><h2>Abschluss</h2><span class="st">Seite 7</span></div>
+    <table class="ptable">
+      ${zeile('Andere Hilfsorganisationen', [...Object.entries(a.hilfsorg).filter(([k,v])=>v===true).map(([k])=>k), a.hilfsorg.sonstigeText].filter(Boolean).join(', '))}
+      ${zeile('Kartenmaterial', Object.entries(a.kartenmaterial).filter(([k,v])=>v).map(([k])=>k).join(', '))}
+      ${zeile('Nachrichtenübermittlung', Object.entries(a.nachricht).filter(([k,v])=>v).map(([k])=>k).join(', '))}
+      ${zeile('Gelände', a.gelaende)}
+      ${zeile('Wetterlage', Object.entries(a.wetterlage).filter(([k,v])=>v).map(([k])=>k).join(', '))}
+      ${zeile('Temperatur / Windrichtung', [a.temperatur?a.temperatur+' °C':'', a.windrichtung].filter(Boolean).join(' · '))}
+      ${zeile('Besondere Vorkommnisse', a.besondereVorkommnisse)}
+      ${zeile('Ergebnis des Einsatzes', a.ergebnis)}
+      ${zeile('Datum / Unterschrift', [a.abschlussDatum, a.abschlussName].filter(Boolean).join(' · '))}
+    </table>
+  </div>`;
+
+  // Seite 8 – Anlagen
+  if(state.anlagen.length || state.tracks.length){
+    html += `<div class="pg"><div class="pghead"><h2>Anlagen</h2><span class="st">Seite 8</span></div>
+      ${state.anlagen.map(an=>`<div style="margin-bottom:14px;"><b>${esc(an.name)}</b>${an.notiz? ' – '+esc(an.notiz):''}${an.thumb? `<br><img src="${an.thumb}" style="max-width:320px;margin-top:6px;border:1px solid #999;">` : ''}</div>`).join('')}
+      ${state.tracks.map(t=>`<div style="margin-bottom:16px;page-break-inside:avoid;"><b>${esc(t.name)}</b> · ${Number(t.distanzKm||0).toFixed(2)} km${t.notiz?' · '+esc(t.notiz):''}${trackSvg(t.points||[])}</div>`).join('')}
+    </div>`;
+  }
+
+  document.getElementById('printArea').innerHTML = html;
+  window.print();
+}
+
+/* ======================================================================
+   THEME (Hell/Dunkel)
+   ====================================================================== */
+
+function wendeThemeAn(){
+  const dark = state.settings.darkMode===null
+    ? window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    : !!state.settings.darkMode;
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  const btn = document.getElementById('btn-theme');
+  if(btn) btn.textContent = dark ? '☀️' : '🌙';
+}
+function themeUmschalten(){
+  const aktuellDunkel = document.documentElement.getAttribute('data-theme')==='dark';
+  state.settings.darkMode = !aktuellDunkel;
+  wendeThemeAn();
+  planeSpeichern();
+}
+
+/* ======================================================================
+   UHR
+   ====================================================================== */
+
+function tickUhr(){
+  const el = document.getElementById('clock');
+  if(el) el.textContent = new Date().toLocaleTimeString('de-DE');
+}
+setInterval(tickUhr, 1000);
+
+function aktualisiereNetzstatus(){
+  const el=document.getElementById('netstatus'); if(!el) return;
+  const offline=navigator.onLine===false;
+  el.textContent=offline?'Keine Verbindung · App läuft offline':'Offline bereit';
+  el.classList.toggle('offline',offline);
+}
+function schnellzugriff(art){
+  if(art==='log'){
+    state.tagebuch.push(neuerTagebuchEintrag()); planeSpeichern(); wechsleTab('tagebuch');
+    setTimeout(()=>document.getElementById('ta-tagebuch-'+(state.tagebuch.length-1))?.focus(),30);
+  }else if(art==='trupp'){
+    state.suchtrupps.push(neuerSuchtrupp()); planeSpeichern(); wechsleTab('suche');
+  }else if(art==='check'){
+    wechsleTab('mehr'); setTimeout(()=>document.getElementById('pruefung')?.scrollIntoView({behavior:'smooth'}),30);
+  }
+}
+
+document.getElementById('quickbar').addEventListener('click',e=>{
+  const b=e.target.closest('[data-quick]'); if(b) schnellzugriff(b.dataset.quick);
+});
+document.getElementById('toastundo').addEventListener('click',()=>{
+  if(!letzteLoeschung) return;
+  state[letzteLoeschung.list].splice(letzteLoeschung.index,0,letzteLoeschung.item);
+  letzteLoeschung=null; document.getElementById('toast').style.display='none'; renderTab(); planeSpeichern();
+});
+window.addEventListener('online',aktualisiereNetzstatus);
+window.addEventListener('offline',aktualisiereNetzstatus);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') speichereZustand(); });
+window.addEventListener('pagehide',()=>speichereZustand());
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key.toLowerCase()==='s'){ e.preventDefault(); jsonExportieren(); return; }
+  if(!e.altKey) return;
+  if(e.key.toLowerCase()==='t'){e.preventDefault();schnellzugriff('log');}
+  else if(e.key.toLowerCase()==='s'){e.preventDefault();schnellzugriff('trupp');}
+  else if(e.key.toLowerCase()==='p'){e.preventDefault();schnellzugriff('check');}
+  else if(/^[1-8]$/.test(e.key)){e.preventDefault();wechsleTab(['alarm','person','kraefte','suche','tagebuch','abschluss','anlagen','mehr'][Number(e.key)-1]);}
+});
+
+/* ======================================================================
+   INIT
+   ====================================================================== */
+
+async function init(){
+  await ladeZustand();
+  ensureRhsExchange();
+  document.getElementById('inp-einsatznummer').value = state.meta.einsatznummer || '';
+  document.getElementById('inp-einsatznummer').addEventListener('input', e=>{
+    state.meta.einsatznummer = e.target.value;
+    const feld=document.querySelector('[data-path="meta.einsatznummer"]'); if(feld) feld.value=e.target.value;
+    planeSpeichern();
+  });
+  document.getElementById('btn-theme').addEventListener('click', themeUmschalten);
+  aktualisiereNetzstatus();
+  wendeThemeAn();
+  tickUhr();
+  wechsleTab('alarm');
+}
+init();
+</script>
+<script id="ux-compact-helper">(function(){function foldHeading(h){if(!h||h.closest("details")||h.dataset.uxFolded)return;var level=Number(h.tagName.slice(1)),parent=h.parentNode;if(!parent)return;var d=document.createElement("details");d.className="ux-help-details";var s=document.createElement("summary");s.textContent=h.textContent.trim();d.appendChild(s);h.dataset.uxFolded="1";var n=h.nextSibling;h.remove();while(n){var next=n.nextSibling;if(n.nodeType===1&&/^H[1-6]$/.test(n.tagName)&&Number(n.tagName.slice(1))<=level)break;d.appendChild(n);n=next;}parent.insertBefore(d,n);}function init(){var patterns=[/allgemeine grundsätze/i,/so liest du/i,/rassetypische hinweise/i,/lebensphase.*lernfähigkeit/i,/eigenwahrnehmung.*selbstcheck/i,/trainingsaufbau-checkliste/i,/was die app kann/i,/bedienungsanleitung/i,/tastenkürzel/i];Array.from(document.querySelectorAll("h2,h3,h4")).filter(function(h){return patterns.some(function(r){return r.test(h.textContent||"")})}).forEach(foldHeading);}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();})();</script>
+</body>
+</html>
