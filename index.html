@@ -3,11 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#b51f2e">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Einsatzprotokoll">
-<link rel="icon" type="image/png" href="data:image/png;base64,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">
 <title>Einsatzprotokoll Personensuche – Rettungshundestaffel · Offline</title>
 <style>
   :root{
@@ -61,6 +56,8 @@
   #topbar h1{font-size:15px;line-height:1.2;color:#fff;}
   #topbar .sub{font-size:11.5px;opacity:.9;}
   #topbar .row2{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  #btn-caltopo{white-space:nowrap;}
+  @media (max-width:480px){ #btn-caltopo .lbl{display:none;} }
   #topbar input.einsatznr{
     flex:1 1 auto;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.5);
     color:#fff;border-radius:6px;padding:7px 9px;font-family:var(--mono);font-size:14px;
@@ -98,7 +95,7 @@
   .warnbox{background:var(--red-bg);border:1px solid var(--drk-red);color:var(--red-text);border-radius:var(--radius);padding:10px 12px;font-size:12.5px;margin-bottom:14px;line-height:1.4;}
   .field{margin-bottom:12px;min-width:0;}
   .field label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:4px;}
-  .field input[type=text],.field input[type=number],.field input[type=date],.field input[type=time],
+  .field input[type=text],.field input[type=url],.field input[type=number],.field input[type=date],.field input[type=time],
   .field select,.field textarea{
     width:100%;padding:9px 10px;border:1px solid var(--line-strong);border-radius:7px;background:var(--input-bg);
   }
@@ -217,6 +214,7 @@
   </div>
   <div class="row2">
     <input class="einsatznr" id="inp-einsatznummer" placeholder="Einsatznummer eintragen…" autocomplete="off">
+    <button class="theme-toggle" id="btn-caltopo" type="button" title="CalTopo in einem neuen Tab öffnen (Link im Reiter „Anlagen“ hinterlegbar)" aria-label="CalTopo öffnen">🗺️<span class="lbl"> CalTopo</span></button>
     <button class="theme-toggle" id="btn-theme" type="button" title="Hell/Dunkel umschalten">🌙</button>
     <div class="clock" id="clock">--:--:--</div>
   </div>
@@ -304,7 +302,7 @@ const FUNK_HANDFUNK  = ['4-10-41','4-10-42','4-10-43','4-10-44','4-10-45','4-10-
    STATE
    ====================================================================== */
 
-const APP_VERSION = '3.3';
+const APP_VERSION = '3.4';
 function todayISO(){
   const d=new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -323,7 +321,7 @@ function defaultRiskWerte(){
 function defaultState(){
   return {
     meta:{
-      einsatznummer:'', datum: todayISO(),
+      einsatznummer:'', datum: todayISO(), caltopoLink:'',
       alarmstichwort:'', auftrag:'', eigeneEinsatzleitung:'', fuehrungskanal:'',
       alarmiertDurch:'', alarmzeitLST:'', alarmzeitEK:'',
       eintreffenVorOrt:'', abfahrtEStelle:'', sammelpunkt:'',
@@ -410,7 +408,7 @@ function buildRhsExchangePackage(){
   const x=ensureRhsExchange(); if(!x.team.teamId) x.team.teamId=rhsUid('team');
   return {rhsFormat:RHS_EXCHANGE_FORMAT,schemaVersion:RHS_EXCHANGE_SCHEMA,packageType:'team',packageId:rhsUid('pkg'),createdAt:new Date().toISOString(),source:{app:RHS_APP_ID,appVersion:APP_VERSION,instanceId:x.instanceId},records:[{type:'team',id:x.team.teamId,data:JSON.parse(JSON.stringify(x.team)),fieldMeta:JSON.parse(JSON.stringify(x.fieldMeta))}]};
 }
-function rhsDownload(){ const p=buildRhsExchangePackage(), blob=new Blob([JSON.stringify(p,null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='RHS_Teamdaten_Einsatzprotokoll_'+todayISO()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);planeSpeichern(); }
+function rhsDownload(){ const p=buildRhsExchangePackage(), blob=new Blob([JSON.stringify(p,null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='RHS_v2_Exchange_Einsatzprotokoll_'+todayISO()+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);planeSpeichern(); }
 function rhsNormalizePackage(raw){if(!raw||raw.rhsFormat!==RHS_EXCHANGE_FORMAT)throw new Error('Keine RHS-Exchange-Datei.');if(Number(raw.schemaVersion)>RHS_EXCHANGE_SCHEMA)throw new Error('Neuere RHS-Exchange-Version noch nicht unterstützt.');if(Array.isArray(raw.records))return raw;const x=raw.payload?.team;if(!x)throw new Error('Keine Team-Stammdaten enthalten.');const f=x.fields||{},v=(...ks)=>{for(const k of ks)if(f[k]&&f[k].value!==undefined)return f[k].value;return''},mm=(...ks)=>{for(const k of ks)if(f[k])return{revision:Number(f[k].revision||0),updatedAt:f[k].updatedAt||'',sourceApp:raw.sourceApp||''};return{revision:0}};return{rhsFormat:RHS_EXCHANGE_FORMAT,schemaVersion:2,packageId:raw.packageId||'',createdAt:raw.createdAt||'',source:{app:raw.sourceApp||'legacy-v1'},records:[{type:'team',id:x.teamId,data:{handler:v('handler'),dogName:v('dogName','dog'),dogBirthDate:v('dogBirthDate','geburtsdatum'),dogBreed:v('dogBreed','rasseFrei'),unit:v('unit'),disciplines:(()=>{const q=v('disciplines','sparte');return Array.isArray(q)?q:(q?[q]:[])})(),indicationType:v('indicationType','anzeigeart')},fieldMeta:{handler:mm('handler'),dogName:mm('dogName','dog'),dogBirthDate:mm('dogBirthDate','geburtsdatum'),dogBreed:mm('dogBreed','rasseFrei'),unit:mm('unit'),disciplines:mm('disciplines','sparte'),indicationType:mm('indicationType','anzeigeart')}}]};}
 function rhsImportFile(file){
  const rd=new FileReader(); rd.onload=async()=>{try{const p=rhsNormalizePackage(JSON.parse(rd.result)); const x=ensureRhsExchange(); if(p.packageId&&x.processedPackages.includes(p.packageId)){alert('Dieses Austauschpaket wurde bereits verarbeitet.');return;} const rec=(p.records||[]).find(r=>r.type==='team'); if(!rec||!rec.data) throw new Error('Keine Team-Stammdaten enthalten.'); if(x.team.teamId&&rec.id&&x.team.teamId!==rec.id&&!confirm('Andere Team-ID. Gehören beide Profile zum selben realen Team und sollen feldweise zusammengeführt werden?')) return; if(rec.id)x.team.teamId=rec.id; else if(!x.team.teamId)x.team.teamId=rhsUid('team'); let neu=0,akt=0,konfl=0,alt=0; const fields=['handler','dogName','dogBirthDate','dogBreed','unit','disciplines','indicationType']; for(const f of fields){const iv=rec.data[f], im=(rec.fieldMeta||{})[f]||{revision:0}, lm=rhsMetaFor(f), lv=x.team[f], ir=Number(im.revision||0), lr=Number(lm.revision||0); if(JSON.stringify(iv)===JSON.stringify(lv)){alt++;continue;} if(!lv||(Array.isArray(lv)&&!lv.length)){rhsSetField(f,iv,p.source?.app,p.source?.instanceId,im);neu++;continue;} if(ir>lr){rhsSetField(f,iv,p.source?.app,p.source?.instanceId,im);akt++;continue;} if(ir<lr){alt++;continue;} konfl++; if(confirm(`Konflikt bei „${f}“:\n\nAktuell: ${Array.isArray(lv)?lv.join(', '):lv}\nImport: ${Array.isArray(iv)?iv.join(', '):iv}\n\nImportwert übernehmen?`)){rhsSetField(f,iv,p.source?.app,p.source?.instanceId,{...im,revision:lr+1});akt++;}}
@@ -975,7 +973,7 @@ function tplSuche(){
   </div>
   <div class="panel">
     <h2>Suchtrupps &amp; Suchgebiete</h2>
-    <div class="hint" style="margin-bottom:10px;">WS = Wegesuche · FL = Flächensuche · MT = Mantrailing · TR = Trümmersuche. Die „Such-Geb.-Nr.“ sollte der Nummerierung in Gaia GPS entsprechen, damit Karte und Protokoll zusammenpassen.</div>
+    <div class="hint" style="margin-bottom:10px;">WS = Wegesuche · FL = Flächensuche · MT = Mantrailing · TR = Trümmersuche. Die „Such-Geb.-Nr.“ muss genau dem Titel des Suchgebiets in CalTopo (bzw. der Nummerierung in Gaia GPS) entsprechen, damit Karte, Funk und Protokoll zusammenpassen – z. B. „3“ in CalTopo = „3“ hier.</div>
     ${state.suchtrupps.map((s,i)=>tplTruppCard(s,i)).join('')}
     <button class="addbtn" data-action="add" data-list="suchtrupps" type="button">+ Suchtrupp hinzufügen</button>
   </div>
@@ -994,7 +992,7 @@ function tplTruppCard(s,i){
         <input list="dl-funk-${i}" type="text" data-list="suchtrupps" data-index="${i}" data-field="rufname" value="${esc(s.rufname)}">
         <datalist id="dl-funk-${i}">${FUNK_HANDFUNK.map(f=>`<option value="${esc(f)}">`).join('')}</datalist>
       </div>
-      <div class="field"><label>Such-Geb.-Nr. (Gaia GPS)</label><input type="text" data-list="suchtrupps" data-index="${i}" data-field="gebietNr" value="${esc(s.gebietNr)}"></div>
+      <div class="field"><label>Such-Geb.-Nr. (Gaia GPS / CalTopo)</label><input type="text" data-list="suchtrupps" data-index="${i}" data-field="gebietNr" value="${esc(s.gebietNr)}"></div>
     </div>
     <div class="field"><label>Suchart</label>
       <div class="pillgroup">
@@ -1117,7 +1115,7 @@ function tplAbschluss(){
 
   <div class="panel">
     <h2>Kartenmaterial &amp; Nachrichtenübermittlung</h2>
-    <label class="checkrow"><input type="checkbox" data-path="abschluss.kartenmaterial.tk" ${checkedIf(a.kartenmaterial.tk)}> Topografische Karte (TK) / Gaia GPS</label>
+    <label class="checkrow"><input type="checkbox" data-path="abschluss.kartenmaterial.tk" ${checkedIf(a.kartenmaterial.tk)}> Topografische Karte (TK) / Gaia GPS / CalTopo</label>
     <label class="checkrow"><input type="checkbox" data-path="abschluss.kartenmaterial.sonstiges" ${checkedIf(a.kartenmaterial.sonstiges)}> Sonstiges</label>
     <div class="hint" style="margin:6px 0 12px 0;">Kartenausschnitte/Screenshots bitte im Reiter „Anlagen“ hinterlegen.</div>
     <label class="checkrow"><input type="checkbox" data-path="abschluss.nachricht.funk" ${checkedIf(a.nachricht.funk)}> Funk</label>
@@ -1174,11 +1172,11 @@ function tplAnlagen(){
   return `
   <div class="panel">
     <h2>Anlagen</h2>
-    <div class="hint" style="margin-bottom:10px;">Fotos von Karten, Screenshots aus Gaia GPS o.ä. Bilder werden vor dem Speichern automatisch verkleinert. Alternativ genügt auch ein Textverweis (z. B. Name des Gaia-GPS-Tracks), wenn kein Foto nötig ist.</div>
+    <div class="hint" style="margin-bottom:10px;">Fotos von Karten, Screenshots aus Gaia GPS, CalTopo o.ä. Bilder werden vor dem Speichern automatisch verkleinert. Alternativ genügt auch ein Textverweis (z. B. Name des Tracks in Gaia GPS oder CalTopo), wenn kein Foto nötig ist.</div>
     <input type="file" id="file-anlage" accept="image/*" style="display:none">
     <button class="addbtn" id="btn-foto" type="button">📷 Foto/Karte hinzufügen</button>
     <div style="height:8px"></div>
-    <button class="addbtn" data-action="add-anlage-text" type="button">📝 Nur Textverweis hinzufügen (z. B. Gaia-GPS-Track-Name)</button>
+    <button class="addbtn" data-action="add-anlage-text" type="button">📝 Nur Textverweis hinzufügen (z. B. Track-Name aus Gaia GPS / CalTopo)</button>
 
     <div class="thumbgrid">
       ${state.anlagen.map((a,i)=>tplAnlageThumb(a,i)).join('')}
@@ -1186,16 +1184,23 @@ function tplAnlagen(){
   </div>
 
   <div class="panel">
-    <h2>Gaia-GPS-Tracks</h2>
-    <div class="hint" style="margin-bottom:10px;">In Gaia GPS den Track als GPX oder KML exportieren und hier auswählen. Die Datei wird offline eingelesen, im Einsatz gespeichert und als vereinfachte Lageübersicht dargestellt. Es findet keine automatische Übertragung an Gaia GPS statt.</div>
-    <input type="file" id="file-track" accept=".gpx,.kml,application/gpx+xml,application/vnd.google-earth.kml+xml,text/xml,application/xml" style="display:none">
-    <button class="addbtn" id="btn-track" type="button">🧭 GPX-/KML-Track aus Gaia GPS importieren</button>
+    <h2>CalTopo-Karte dieses Einsatzes</h2>
+    <div class="hint" style="margin-bottom:10px;">CalTopo läuft online in einem eigenen Browser-Tab. Hier optional den Link zur Einsatz- bzw. Trainingskarte einfügen (in CalTopo die Karte öffnen und die Adresse aus der Adresszeile kopieren). Der Knopf „🗺️ CalTopo“ oben öffnet dann direkt diese Karte, sonst die CalTopo-Startseite.</div>
+    <div class="field"><label>Link zur CalTopo-Karte (optional)</label><input type="url" data-path="meta.caltopoLink" placeholder="https://caltopo.com/m/…" value="${esc(state.meta.caltopoLink||'')}"></div>
+    <button class="addbtn" data-action="caltopo-open" type="button">🗺️ CalTopo in neuem Tab öffnen</button>
+  </div>
+
+  <div class="panel">
+    <h2>Tracks aus Gaia GPS / CalTopo</h2>
+    <div class="hint" style="margin-bottom:10px;">Gaia GPS: Track als GPX oder KML exportieren. CalTopo: Karte öffnen → Ordner-Symbol (Map Items) → Export; die Datei (GeoJSON, .json) hier auswählen. Die Datei wird offline eingelesen, im Einsatz gespeichert und als vereinfachte Lageübersicht dargestellt. Es findet keine automatische Übertragung an Gaia GPS oder CalTopo statt.</div>
+    <input type="file" id="file-track" accept=".gpx,.kml,.json,.geojson,application/gpx+xml,application/vnd.google-earth.kml+xml,application/geo+json,application/json,text/xml,application/xml" style="display:none">
+    <button class="addbtn" id="btn-track" type="button">🧭 Track importieren (GPX, KML, CalTopo-GeoJSON)</button>
     ${state.tracks.map((t,i)=>tplTrackCard(t,i)).join('')}
   </div>
 
   <div class="panel">
-    <h2>Koordinaten &amp; Gaia GPS</h2>
-    <div class="hint" style="margin-bottom:10px;">Erfasste Standorte und importierte Tracks lassen sich gemeinsam als GPX-Datei exportieren und wieder in Gaia GPS öffnen. Aktuell: ${anzahlGeo} Standort(e), ${state.tracks.length} Track(s).</div>
+    <h2>Koordinaten &amp; Gaia GPS / CalTopo</h2>
+    <div class="hint" style="margin-bottom:10px;">Erfasste Standorte und importierte Tracks lassen sich gemeinsam als GPX-Datei exportieren und wieder in Gaia GPS oder CalTopo (Map Items → Import) öffnen. Aktuell: ${anzahlGeo} Standort(e), ${state.tracks.length} Track(s).</div>
     <button class="addbtn" data-action="gpx-export" type="button">🧭 Einsatzpunkte + Tracks als GPX exportieren</button>
   </div>
   `;
@@ -1242,7 +1247,7 @@ function tplMehr(){
       <button class="action" data-action="drucken" type="button">🖨️ Druckansicht / als PDF sichern</button>
       <button class="action" data-action="export-json" type="button">⬇️ Vollständige Sicherung inkl. Bilder (JSON)</button>
       <button class="action" data-action="export-csv" type="button">📊 Einsatzübersicht für Excel (CSV)</button>
-      <button class="action" data-action="import-json" type="button">⬆️ Sicherung einlesen</button>
+      <button class="action" data-action="import-json" type="button">⬆️ Backup wieder einlesen</button>
       <input type="file" id="file-import" accept="application/json" style="display:none">
     </div>
   </div>
@@ -1251,8 +1256,8 @@ function tplMehr(){
     <h2>RH-Flächensuchassistent</h2>
     <div class="hint" style="margin-bottom:10px;">Der RH-Flächensuchassistent ist eine eigenständige, kontofreie App. Über seinen Export erzeugt er eine JSON-Datei mit Auftrag, Gebiet, Wetter, taktischer Zusammenfassung, Kartengeometrie und Fundmeldungen. Einsatz-Exporte können hier additiv eingelesen werden: Vorhandene Angaben in Alarm/Abschluss werden nicht überschrieben; ein neuer Suchtrupp, ein Tagebucheintrag, Fundmeldungen und vorhandene Tracks werden ergänzt.</div>
     <div class="menurow">
-      <button class="action" data-action="import-taktik" type="button">🎯 Übergabe aus Flächensuchassistent einlesen</button>
-      <input type="file" id="file-import-taktik" accept="application/json" style="display:none"><div class="hint" style="margin:10px 0;">Einsatz-Logs aus Mantrailing- oder Trümmersuchassistent additiv übernehmen. Trainings- und Prüfungsbewertungen werden bewusst nicht importiert.</div><button class="action" data-action="import-searchassist" type="button">🐕 Übergabe aus Mantrailing-/Trümmerassistent einlesen</button><input type="file" id="file-import-searchassist" accept="application/json" style="display:none">
+      <button class="action" data-action="import-taktik" type="button">🎯 RH-Flächensuchassistent-Daten einlesen (JSON)</button>
+      <input type="file" id="file-import-taktik" accept="application/json" style="display:none"><div class="hint" style="margin:10px 0;">Einsatz-Logs aus Mantrailing- oder Trümmersuchassistent additiv übernehmen. Trainings- und Prüfungsbewertungen werden bewusst nicht importiert.</div><button class="action" data-action="import-searchassist" type="button">🐕 MT-/Trümmer-Assistent Einsatzdaten einlesen</button><input type="file" id="file-import-searchassist" accept="application/json" style="display:none">
     </div>
   </div>
 
@@ -1266,8 +1271,8 @@ function tplMehr(){
     <h2>RH App-Familie · Datenaustausch</h2>
     <div class="hint">Optionaler RHS Exchange für gemeinsame Team-Stammdaten. Das Einsatzprotokoll bleibt vollständig eigenständig; Einsatz-, Vermissten- und Patientendaten werden hierüber nicht verteilt.</div>
     <div class="menurow">
-      <button class="action" data-action="rhs-export" type="button">⇩ Teamdaten exportieren</button>
-      <button class="action" data-action="rhs-import" type="button">⇧ Teamdaten importieren</button>
+      <button class="action" data-action="rhs-export" type="button">⇩ Teamdaten austauschen</button>
+      <button class="action" data-action="rhs-import" type="button">⇧ RHS-Exchange-Datei einlesen</button>
       <input id="file-import-rhs" type="file" accept="application/json,.json" style="display:none">
     </div>
     <div class="hint">Team-ID: ${esc(ensureRhsExchange().team.teamId||'wird beim ersten Export/Import erzeugt')}</div>
@@ -1301,7 +1306,7 @@ function tplMehr(){
       Alle Daten werden ausschließlich lokal auf diesem Gerät gespeichert und nicht automatisch geteilt. Ein Browser- oder App-Wechsel hat einen eigenen Datenbestand. Für die Übergabe an KBL/Polizei bitte die Druckansicht oder eine bewusst erstellte Sicherung nutzen.<br><br>
       Diese Anwendung ersetzt keine amtliche Software – bitte parallel zur laufenden RESQBIRD-Prüfung als Zwischenlösung bzw. Absicherung nutzen. Das JSON-Backup ist bewusst offen gehalten, damit Daten bei Bedarf in ein künftiges System übernommen werden können.<br><br>
       Für die Verteilung von Suchgebieten empfiehlt sich statt WhatsApp der DRK.Chat (datenschutzkonform, vom DRK selbst betrieben).<br><br>
-      Gaia GPS: Lagekarten/Screenshots können als Bildanlage, exportierte GPX-/KML-Tracks direkt im Reiter „Anlagen“ eingelesen werden. Eine automatische Gaia-Synchronisierung oder gegenseitiges Live-Tracking benötigt eine Online-Schnittstelle und ist in der lokalen Einzeldatei nicht möglich.<br><br>
+      Gaia GPS / CalTopo: Lagekarten/Screenshots können als Bildanlage, exportierte Tracks (Gaia: GPX/KML, CalTopo: GeoJSON) direkt im Reiter „Anlagen“ eingelesen werden. CalTopo wird über den Knopf „🗺️ CalTopo“ in einem eigenen Tab geöffnet – am PC am besten als zweites Fenster neben dem Protokoll. Eine automatische Synchronisierung oder Live-Tracking im Protokoll benötigt eine Online-Schnittstelle und ist in der lokalen Einzeldatei bewusst nicht vorgesehen.<br><br>
       Tastaturkürzel: Alt+T Tagebucheintrag · Alt+S Suchtrupp · Alt+P Prüfung · Alt+1 bis Alt+8 Reiter wechseln · Strg/Cmd+Umschalt+S vollständige Sicherung.
     </div>
   </div>
@@ -1585,7 +1590,7 @@ function behandleAktion(btn){
       letzteLoeschung={list:'tracks',index,item}; renderTab(); planeSpeichern(); zeigeToast('Track entfernt.'); break;
     }
     case 'add-anlage-text': {
-      const name = prompt('Bezeichnung (z. B. „Gaia-GPS-Track Suchgebiet 3“):','');
+      const name = prompt('Bezeichnung (z. B. „CalTopo-Track Suchgebiet 3“):','');
       if(name===null) return;
       state.anlagen.push({id:'a'+Date.now(), name, notiz:'', thumb:'', fullKey:''});
       renderTab(); planeSpeichern();
@@ -1618,6 +1623,7 @@ function behandleAktion(btn){
     case 'diktat': starteDiktat(btn); break;
     case 'wetter-auto': wetterAutomatisch(); break;
     case 'gpx-export': gpxExportieren(); break;
+    case 'caltopo-open': caltopoOeffnen(); break;
     case 'statistik-berechnen': statistikBerechnen(); break;
     case 'anlage-oeffnen': {
       oeffneAnlageVollbild(Number(btn.dataset.index));
@@ -1719,7 +1725,19 @@ async function oeffneAnlageVollbild(index){
   }
 }
 
-/* ---------- Gaia-GPS-Trackimport (GPX/KML, vollständig offline) ---------- */
+/* ---------- CalTopo in eigenem Tab öffnen ---------- */
+function caltopoOeffnen(){
+  const roh=String(state?.meta?.caltopoLink||'').trim();
+  let url='https://caltopo.com/';
+  if(roh){
+    try{ const u=new URL(roh); if(u.protocol==='https:' && /(^|\.)(caltopo|sartopo)\.com$/i.test(u.hostname)) url=u.href; else zeigeToast('Link ist keine CalTopo-Adresse – CalTopo-Startseite wird geöffnet.'); }
+    catch(e){ zeigeToast('Link ungültig – CalTopo-Startseite wird geöffnet.'); }
+  }
+  const w=window.open(url,'caltopo');
+  if(w){ try{ w.opener=null; }catch(e){} } else alert('Der Browser hat das Öffnen blockiert. Bitte Pop-ups für diese Seite erlauben oder CalTopo manuell öffnen: '+url);
+}
+
+/* ---------- Trackimport Gaia GPS / CalTopo (GPX/KML/GeoJSON, vollständig offline) ---------- */
 
 function rad(v){ return v*Math.PI/180; }
 function streckeKm(points){
@@ -1744,7 +1762,29 @@ function punktAusNode(n){
   const time=n.getElementsByTagNameNS('*','time')[0]?.textContent||'';
   return {lat,lon,ele:ele===''?null:Number(ele),time};
 }
+function parseGeoJsonTrack(text,dateiname){
+  let obj; try{ obj=JSON.parse(text); }catch(e){ throw new Error('Ungültige JSON-Datei'); }
+  const features=obj?.type==='FeatureCollection'?(obj.features||[]):obj?.type==='Feature'?[obj]:(obj?.type&&obj.coordinates)?[{type:'Feature',properties:{},geometry:obj}]:[];
+  const basis=dateiname.replace(/\.(geo)?json$/i,''), ergebnisse=[];
+  const zuPunkt=c=>{ if(!Array.isArray(c)) return null; const [lon,lat,ele,t]=c.map(Number);
+    if(!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180) return null;
+    let time=''; if(Number.isFinite(t)&&t>0){ const d=new Date(t>1e11?t:t*1000); if(!isNaN(d)) time=d.toISOString(); }
+    return {lat,lon,ele:Number.isFinite(ele)?ele:null,time}; };
+  features.forEach((f,i)=>{
+    const g=f?.geometry; if(!g) return;
+    const linien=g.type==='LineString'?[g.coordinates]:g.type==='MultiLineString'?g.coordinates:[];
+    linien.forEach((lin,j)=>{
+      const points=(lin||[]).map(zuPunkt).filter(Boolean);
+      if(points.length<2) return;
+      const titel=String(f.properties?.title||f.properties?.name||'').trim();
+      const name=(titel||basis)+(linien.length>1?' '+(j+1):'');
+      ergebnisse.push({id:'t'+Date.now()+'-'+i+'-'+j,name,format:'CalTopo-GeoJSON',distanzKm:streckeKm(points),points:reduzierePunkte(points),notiz:''});
+    });
+  });
+  return ergebnisse;
+}
 function parseTrackDatei(text,dateiname){
+  if(/\.(geo)?json$/i.test(dateiname) || /^\s*[\[{]/.test(text)) return parseGeoJsonTrack(text,dateiname);
   const doc=new DOMParser().parseFromString(text,'application/xml');
   if(doc.querySelector('parsererror')) throw new Error('Ungültige XML-Datei');
   const lower=dateiname.toLowerCase(), ergebnisse=[];
@@ -1830,7 +1870,7 @@ async function jsonExportieren(){
     }
   }
   backup._backupErstellt=new Date().toISOString();
-  dateiHerunterladen(JSON.stringify(backup, null, 2), 'application/json', `RHS_Sicherung_Einsatzprotokoll_${name}_${state.meta.datum}.json`);
+  dateiHerunterladen(JSON.stringify(backup, null, 2), 'application/json', `Einsatzprotokoll_${name}_${state.meta.datum}.json`);
 }
 
 function csvFeld(v){ return '"'+String(v??'').replace(/"/g,'""').replace(/\r?\n/g,' ')+'"'; }
@@ -1865,7 +1905,7 @@ function gpxExportieren(){
     return;
   }
   const wpts = punkte.map(p => `  <wpt lat="${p.lat}" lon="${p.lon}"><name>${esc(p.name)}</name><desc>${esc(p.text||'')}</desc></wpt>`).join('\n');
-  const trks = state.tracks.map(t=>`  <trk><name>${esc(t.name||'Gaia-GPS-Track')}</name><desc>${esc(t.notiz||'')}</desc><trkseg>${(t.points||[]).map(p=>`<trkpt lat="${p.lat}" lon="${p.lon}">${Number.isFinite(p.ele)?`<ele>${p.ele}</ele>`:''}${p.time?`<time>${esc(p.time)}</time>`:''}</trkpt>`).join('')}</trkseg></trk>`).join('\n');
+  const trks = state.tracks.map(t=>`  <trk><name>${esc(t.name||'Track')}</name><desc>${esc(t.notiz||'')}</desc><trkseg>${(t.points||[]).map(p=>`<trkpt lat="${p.lat}" lon="${p.lon}">${Number.isFinite(p.ele)?`<ele>${p.ele}</ele>`:''}${p.time?`<time>${esc(p.time)}</time>`:''}</trkpt>`).join('')}</trkseg></trk>`).join('\n');
   const gpx = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Einsatzprotokoll Rettungshundestaffel" xmlns="http://www.topografix.com/GPX/1/1">\n${wpts}\n${trks}\n</gpx>`;
   const name = (state.meta.einsatznummer || 'einsatz').replace(/[^a-z0-9_-]/gi,'_');
   dateiHerunterladen(gpx, 'application/gpx+xml', `Einsatzpunkte_${name}_${state.meta.datum}.gpx`);
@@ -2318,6 +2358,7 @@ async function init(){
     planeSpeichern();
   });
   document.getElementById('btn-theme').addEventListener('click', themeUmschalten);
+  document.getElementById('btn-caltopo').addEventListener('click', caltopoOeffnen);
   aktualisiereNetzstatus();
   wendeThemeAn();
   tickUhr();
@@ -2326,13 +2367,5 @@ async function init(){
 init();
 </script>
 <script id="ux-compact-helper">(function(){function foldHeading(h){if(!h||h.closest("details")||h.dataset.uxFolded)return;var level=Number(h.tagName.slice(1)),parent=h.parentNode;if(!parent)return;var d=document.createElement("details");d.className="ux-help-details";var s=document.createElement("summary");s.textContent=h.textContent.trim();d.appendChild(s);h.dataset.uxFolded="1";var n=h.nextSibling;h.remove();while(n){var next=n.nextSibling;if(n.nodeType===1&&/^H[1-6]$/.test(n.tagName)&&Number(n.tagName.slice(1))<=level)break;d.appendChild(n);n=next;}parent.insertBefore(d,n);}function init(){var patterns=[/allgemeine grundsätze/i,/so liest du/i,/rassetypische hinweise/i,/lebensphase.*lernfähigkeit/i,/eigenwahrnehmung.*selbstcheck/i,/trainingsaufbau-checkliste/i,/was die app kann/i,/bedienungsanleitung/i,/tastenkürzel/i];Array.from(document.querySelectorAll("h2,h3,h4")).filter(function(h){return patterns.some(function(r){return r.test(h.textContent||"")})}).forEach(foldHeading);}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();})();</script>
-
-<script id="rhs-pwa">/* Offline-Start und Installation – nur bei Aufruf über eine Webadresse; lokal geöffnet bleibt alles unverändert. */
-(function(){if(!/^https?:$/.test(location.protocol))return;try{
- var l=document.querySelector('link[rel="manifest"]');if(l){l.setAttribute('href','manifest.webmanifest')}else{l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l)}
- if(!document.querySelector('link[rel="apple-touch-icon"][href="apple-touch-icon.png"]')){var a=document.createElement('link');a.rel='apple-touch-icon';a.href='apple-touch-icon.png';document.head.appendChild(a)}
- if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(e){console.warn('Service Worker nicht registriert',e)});
- if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});
-}catch(e){}})();</script>
 </body>
 </html>
